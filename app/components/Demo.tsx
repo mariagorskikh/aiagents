@@ -1,7 +1,7 @@
 "use client";
 
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { useState, useRef, useEffect } from 'react';
 
 // Demo steps with rich content for visual simulation
 const demoSteps = [
@@ -125,7 +125,13 @@ const letterAnimation = {
 };
 
 // Character by character text animation component
-const AnimatedText = ({ text, className, delay = 0 }) => {
+interface AnimatedTextProps {
+  text: string;
+  className: string;
+  delay?: number;
+}
+
+const AnimatedText = ({ text, className, delay = 0 }: AnimatedTextProps) => {
   return (
     <motion.p 
       className={className}
@@ -144,7 +150,17 @@ const AnimatedText = ({ text, className, delay = 0 }) => {
 };
 
 // Calendar visualization component
-const CalendarView = ({ entries, className }) => (
+interface CalendarEntry {
+  date: string;
+  event?: string;
+}
+
+interface CalendarViewProps {
+  entries: CalendarEntry[];
+  className?: string;
+}
+
+const CalendarView = ({ entries, className }: CalendarViewProps) => (
   <div className={`${className} grid grid-cols-7 gap-1 bg-black/20 rounded-lg p-3 mt-3`}>
     {['M','T','W','T','F','S','S'].map((day, i) => (
       <div key={`header-${i}`} className="text-xs text-center text-text-secondary py-1">{day}</div>
@@ -466,20 +482,25 @@ export default function Demo() {
   
   // Dynamic content rendering based on active step
   const renderDemoContent = () => {
+    // Make sure we have current step before trying to access its content
+    if (!currentStep || !currentStep.content) {
+      return <div>Loading content...</div>;
+    }
+
     switch (activeStep) {
       case 0: // User Input
         return (
           <div className="h-full flex flex-col justify-center">
             <div className="bg-white/5 rounded-lg p-4 mb-4">
               <AnimatedText 
-                text={currentStep.content.userInput} 
+                text={currentStep.content.userInput || "Planning a trip to Tokyo"}
                 className="text-white"
                 delay={0.5}
               />
             </div>
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content.agentResponse || "I'd be happy to help plan your trip to Tokyo!"}
                 className="text-white"
                 delay={2}
               />
@@ -492,13 +513,13 @@ export default function Demo() {
           <div className="h-full flex flex-col justify-center">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content.agentResponse || "Let's check your calendar for availability."}
                 className="text-white"
                 delay={0.5}
               />
             </div>
             <CalendarView 
-              entries={currentStep.content.calendarEntries} 
+              entries={currentStep.content.calendarEntries || []}
               className="mt-4" 
             />
           </div>
@@ -509,13 +530,13 @@ export default function Demo() {
           <div className="h-full flex flex-col justify-center">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content.agentResponse || "Here are the best flight options I found."}
                 className="text-white"
                 delay={0.5}
               />
             </div>
             <div className="space-y-2">
-              {currentStep.content.flightOptions.map((flight, idx) => (
+              {(currentStep.content.flightOptions || []).map((flight, idx) => (
                 <FlightCard 
                   key={idx}
                   flight={flight}
@@ -543,21 +564,25 @@ export default function Demo() {
         );
         
       case 3: // Hotel Booking
+        const hotelOptions = currentStep.content.hotelOptions || [];
+        const selectedHotelIndex = currentStep.content.selectedHotel || 0;
+        const selectedHotel = hotelOptions[selectedHotelIndex] || { name: "Selected Hotel" };
+        
         return (
           <div className="h-full flex flex-col justify-center overflow-y-auto">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content.agentResponse || "Let's find a great place to stay."}
                 className="text-white"
                 delay={0.5}
               />
             </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 max-h-64 overflow-y-auto pb-2">
-              {currentStep.content.hotelOptions.map((hotel, idx) => (
+              {hotelOptions.map((hotel, idx) => (
                 <HotelCard 
                   key={idx}
                   hotel={hotel}
-                  isSelected={idx === currentStep.content.selectedHotel}
+                  isSelected={idx === selectedHotelIndex}
                   onSelect={() => {}}
                   delay={1 + (idx * 0.2)}
                 />
@@ -583,7 +608,7 @@ export default function Demo() {
             ) : (
               <HotelBookingProcess 
                 status={bookingStatus} 
-                hotelName={currentStep.content.hotelOptions[currentStep.content.selectedHotel]?.name || "Selected Hotel"} 
+                hotelName={selectedHotel.name} 
               />
             )}
           </div>
@@ -594,13 +619,13 @@ export default function Demo() {
           <div className="h-full flex flex-col justify-center">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content.agentResponse || "Here's an itinerary for your trip."}
                 className="text-white"
                 delay={0.5}
               />
             </div>
             <div className="space-y-1">
-              {currentStep.content.activities.map((activity, idx) => (
+              {(currentStep.content.activities || []).map((activity, idx) => (
                 <ActivityItem
                   key={idx}
                   activity={activity}
@@ -619,7 +644,7 @@ export default function Demo() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Add to Itinerary
+                Confirm Itinerary
               </motion.button>
             </motion.div>
           </div>
@@ -630,7 +655,7 @@ export default function Demo() {
           <div className="h-full flex flex-col justify-center">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content.agentResponse || "Your trip is confirmed!"}
                 className="text-white"
                 delay={0.5}
               />
