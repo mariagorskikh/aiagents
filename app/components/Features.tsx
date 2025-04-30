@@ -1,14 +1,18 @@
 "use client";
 
+import React, { useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef, useState } from 'react';
+
+interface DemoComponentProps {
+  inView: boolean;
+}
 
 // New interactive features with mini-demos
 const features = [
   {
     title: "Contextual Memory",
     description: "Agents understand your history and preferences, accessing prior interactions to provide personalized assistance.",
-    demoComponent: ({ inView }) => {
+    demoComponent: ({ inView }: DemoComponentProps) => {
       const [typing, setTyping] = useState(inView);
       const [showMemory, setShowMemory] = useState(false);
       
@@ -51,9 +55,9 @@ const features = [
   {
     title: "Agent Discovery Network",
     description: "Search and connect with verified autonomous agents through the NANDA vector database.",
-    demoComponent: ({ inView }) => {
+    demoComponent: ({ inView }: DemoComponentProps) => {
       const [searchComplete, setSearchComplete] = useState(false);
-      const [activeAgent, setActiveAgent] = useState(null);
+      const [activeAgent, setActiveAgent] = useState<number | null>(null);
       
       // Initiate search animation when in view
       if (inView && !searchComplete) {
@@ -117,7 +121,7 @@ const features = [
   {
     title: "Agent Interactions",
     description: "Watch your agent negotiate, authorize transactions, and exchange data with other verified agents.",
-    demoComponent: ({ inView }) => {
+    demoComponent: ({ inView }: DemoComponentProps) => {
       const [step, setStep] = useState(0);
       
       // Progress through conversation when in view
@@ -166,7 +170,7 @@ const features = [
   {
     title: "Responsive Visualization",
     description: "Agents return structured data that our browser instantly transforms into interactive interfaces.",
-    demoComponent: ({ inView }) => {
+    demoComponent: ({ inView }: DemoComponentProps) => {
       const [step, setStep] = useState(0);
       
       // Progress through the visualization steps when in view
@@ -313,7 +317,7 @@ const features = [
 ];
 
 export default function Features() {
-  const sectionRef = useRef(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
   const [isInView, setIsInView] = useState(false);
   
   // Scroll-based animations
