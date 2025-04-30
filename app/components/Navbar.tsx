@@ -43,9 +43,15 @@ export default function Navbar() {
           transition={{ type: "spring", stiffness: 400, damping: 10 }}
         >
           <div className="flex items-center gap-2">
-            {/* Add your logo here */}
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-accent to-accent-light flex items-center justify-center">
-              <span className="text-white font-bold text-sm">AI</span>
+            {/* Use the AIA-logo.png file */}
+            <div className="w-8 h-8 relative">
+              <Image
+                src="/AIA-logo.png"
+                alt="AIA Logo"
+                width={32}
+                height={32}
+                className="object-contain"
+              />
             </div>
             <span className="text-2xl font-bold">
               <span className="bg-gradient-to-r from-white to-accent-light bg-clip-text text-transparent">
