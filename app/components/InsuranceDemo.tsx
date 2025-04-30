@@ -141,7 +141,13 @@ const letterAnimation = {
 };
 
 // Character by character text animation component
-const AnimatedText = ({ text, className, delay = 0 }) => {
+interface AnimatedTextProps {
+  text: string;
+  className?: string;
+  delay?: number;
+}
+
+const AnimatedText = ({ text, className, delay = 0 }: AnimatedTextProps) => {
   return (
     <motion.p 
       className={className}
@@ -160,12 +166,22 @@ const AnimatedText = ({ text, className, delay = 0 }) => {
 };
 
 // Provider status component
-const ProviderStatus = ({ providers, className }) => {
+interface Provider {
+  name: string;
+  icon: string;
+}
+
+interface ProviderStatusProps {
+  providers: Provider[];
+  className?: string;
+}
+
+const ProviderStatus = ({ providers, className }: ProviderStatusProps) => {
   const [completedCount, setCompletedCount] = useState(0);
   
   useEffect(() => {
     if (completedCount < providers.length) {
-      const timer = setTimeout(() => {
+      const timer: NodeJS.Timeout = setTimeout(() => {
         setCompletedCount(prev => prev + 1);
       }, 300);
       return () => clearTimeout(timer);
@@ -201,7 +217,24 @@ const ProviderStatus = ({ providers, className }) => {
 };
 
 // Quote card component
-const QuoteCard = ({ quote, isSelected, onSelect, delay }) => (
+interface QuoteData {
+  provider: string;
+  monthlyRate: string;
+  coverage: string;
+  deductible: string;
+  rating: number;
+  bestFor: string;
+  features: string[];
+}
+
+interface QuoteCardProps {
+  quote: QuoteData;
+  isSelected: boolean;
+  onSelect: () => void;
+  delay: number;
+}
+
+const QuoteCard = ({ quote, isSelected, onSelect, delay }: QuoteCardProps) => (
   <motion.div 
     className={`p-4 rounded-lg ${isSelected ? 'bg-accent/30 border border-accent' : 'bg-white/5'}`}
     initial={{ opacity: 0, x: -20 }}
@@ -246,7 +279,16 @@ const QuoteCard = ({ quote, isSelected, onSelect, delay }) => (
 );
 
 // Recommendation component
-const RecommendationView = ({ recommendation }) => (
+interface Recommendation {
+  provider: string;
+  reasoning: string[];
+}
+
+interface RecommendationViewProps {
+  recommendation: Recommendation;
+}
+
+const RecommendationView = ({ recommendation }: RecommendationViewProps) => (
   <motion.div 
     className="bg-black/20 rounded-lg p-4 border border-accent/30"
     initial={{ opacity: 0, y: 20 }}
@@ -286,12 +328,28 @@ const RecommendationView = ({ recommendation }) => (
 );
 
 // Policy finalization component
-const PolicyFinalization = ({ steps, policyDetails }) => {
+interface PolicyStep {
+  name: string;
+}
+
+interface PolicyDetails {
+  provider: string;
+  policyNumber: string;
+  startDate: string;
+  documentLink: string;
+}
+
+interface PolicyFinalizationProps {
+  steps: PolicyStep[];
+  policyDetails: PolicyDetails;
+}
+
+const PolicyFinalization = ({ steps, policyDetails }: PolicyFinalizationProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   
   useEffect(() => {
     if (currentStep < steps.length) {
-      const timer = setTimeout(() => {
+      const timer: NodeJS.Timeout = setTimeout(() => {
         setCurrentStep(prev => prev + 1);
       }, 1000);
       return () => clearTimeout(timer);
@@ -412,7 +470,7 @@ export default function InsuranceDemo() {
   
   // Auto-advance through demo steps
   useEffect(() => {
-    let timer;
+    let timer: NodeJS.Timeout | undefined;
     if (autoPlay && activeStep < demoSteps.length - 1) {
       timer = setTimeout(() => {
         setActiveStep(prevStep => prevStep + 1);

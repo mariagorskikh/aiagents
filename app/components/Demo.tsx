@@ -125,7 +125,13 @@ const letterAnimation = {
 };
 
 // Character by character text animation component
-const AnimatedText = ({ text, className, delay = 0 }) => {
+interface AnimatedTextProps {
+  text: string;
+  className?: string;
+  delay?: number;
+}
+
+const AnimatedText = ({ text, className, delay = 0 }: AnimatedTextProps) => {
   return (
     <motion.p 
       className={className}
@@ -144,7 +150,17 @@ const AnimatedText = ({ text, className, delay = 0 }) => {
 };
 
 // Calendar visualization component
-const CalendarView = ({ entries, className }) => (
+interface CalendarEntry {
+  date: string;
+  event: string;
+}
+
+interface CalendarViewProps {
+  entries: CalendarEntry[];
+  className?: string;
+}
+
+const CalendarView = ({ entries, className }: CalendarViewProps) => (
   <div className={`${className} grid grid-cols-7 gap-1 bg-black/20 rounded-lg p-3 mt-3`}>
     {['M','T','W','T','F','S','S'].map((day, i) => (
       <div key={`header-${i}`} className="text-xs text-center text-text-secondary py-1">{day}</div>
@@ -170,7 +186,22 @@ const CalendarView = ({ entries, className }) => (
 );
 
 // Flight card component
-const FlightCard = ({ flight, isSelected, onSelect, delay }) => (
+interface FlightData {
+  airline: string;
+  price: string;
+  departure: string;
+  arrival: string;
+  duration: string;
+}
+
+interface FlightCardProps {
+  flight: FlightData;
+  isSelected: boolean;
+  onSelect: () => void;
+  delay: number;
+}
+
+const FlightCard = ({ flight, isSelected, onSelect, delay }: FlightCardProps) => (
   <motion.div 
     className={`p-3 rounded-lg mb-2 ${isSelected ? 'bg-accent/30 border border-accent' : 'bg-white/5'}`}
     initial={{ opacity: 0, x: -20 }}
@@ -192,7 +223,23 @@ const FlightCard = ({ flight, isSelected, onSelect, delay }) => (
 );
 
 // Hotel card component
-const HotelCard = ({ hotel, isSelected, onSelect, delay }) => (
+interface HotelData {
+  name: string;
+  location: string;
+  price: string;
+  rating: string;
+  image: string;
+  amenities?: string[];
+}
+
+interface HotelCardProps {
+  hotel: HotelData;
+  isSelected: boolean;
+  onSelect: () => void;
+  delay: number;
+}
+
+const HotelCard = ({ hotel, isSelected, onSelect, delay }: HotelCardProps) => (
   <motion.div 
     className={`p-3 rounded-lg mb-2 ${isSelected ? 'bg-accent/30 border border-accent' : 'bg-white/5'}`}
     initial={{ opacity: 0, x: -20 }}
@@ -231,7 +278,12 @@ const HotelCard = ({ hotel, isSelected, onSelect, delay }) => (
 );
 
 // Hotel booking animation component
-const HotelBookingProcess = ({ status, hotelName }) => {
+interface HotelBookingProcessProps {
+  status: string;
+  hotelName: string;
+}
+
+const HotelBookingProcess = ({ status, hotelName }: HotelBookingProcessProps) => {
   const [stage, setStage] = useState(0);
   
   useEffect(() => {
@@ -318,7 +370,18 @@ const HotelBookingProcess = ({ status, hotelName }) => {
 };
 
 // Activity item component
-const ActivityItem = ({ activity, delay }) => (
+interface ActivityData {
+  name: string;
+  type: string;
+  time: string;
+}
+
+interface ActivityItemProps {
+  activity: ActivityData;
+  delay: number;
+}
+
+const ActivityItem = ({ activity, delay }: ActivityItemProps) => (
   <motion.div 
     className="p-2 rounded-lg mb-2 bg-white/5 flex justify-between"
     initial={{ opacity: 0, x: -20 }}
@@ -334,7 +397,18 @@ const ActivityItem = ({ activity, delay }) => (
 );
 
 // Confirmation visualization component
-const ConfirmationView = ({ details }) => (
+interface ConfirmationDetails {
+  tripDates: string;
+  flight: string;
+  hotel: string;
+  totalCost: string;
+}
+
+interface ConfirmationViewProps {
+  details: ConfirmationDetails;
+}
+
+const ConfirmationView = ({ details }: ConfirmationViewProps) => (
   <motion.div 
     className="bg-black/20 rounded-lg p-4 mt-3 border border-accent/20"
     initial={{ opacity: 0, y: 20 }}
@@ -429,7 +503,7 @@ export default function Demo() {
   
   // Auto-advance through demo steps
   useEffect(() => {
-    let timer;
+    let timer: NodeJS.Timeout | undefined;
     if (autoPlay && activeStep < demoSteps.length - 1) {
       timer = setTimeout(() => {
         setActiveStep(prevStep => prevStep + 1);
@@ -443,7 +517,7 @@ export default function Demo() {
   
   // Booking status effect for hotel booking step
   useEffect(() => {
-    let timer;
+    let timer: NodeJS.Timeout | undefined;
     // Only run this effect when we're on the hotel booking step (index 3) and visible
     if (isVisible && activeStep === 3 && bookingStatus === "idle") {
       timer = setTimeout(() => {
