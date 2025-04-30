@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import Image from 'next/image';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -41,11 +42,17 @@ export default function Navbar() {
           whileHover={{ scale: 1.05 }}
           transition={{ type: "spring", stiffness: 400, damping: 10 }}
         >
-          <span className="text-2xl font-bold">
-            <span className="bg-gradient-to-r from-white to-accent-light bg-clip-text text-transparent">
-              AIA
+          <div className="flex items-center gap-2">
+            {/* Add your logo here */}
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-accent to-accent-light flex items-center justify-center">
+              <span className="text-white font-bold text-sm">AI</span>
+            </div>
+            <span className="text-2xl font-bold">
+              <span className="bg-gradient-to-r from-white to-accent-light bg-clip-text text-transparent">
+                AIA
+              </span>
             </span>
-          </span>
+          </div>
         </motion.div>
         
         {/* Desktop Navigation */}
