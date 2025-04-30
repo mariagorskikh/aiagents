@@ -275,7 +275,18 @@ const VenueCard = ({ venue, isSelected, onSelect, delay }: VenueCardProps) => {
 };
 
 // Agent team visualization component
-const AgentTeam = ({ agents }) => {
+interface Agent {
+  name: string;
+  role: string;
+  image?: string;
+  status?: string;
+}
+
+interface AgentTeamProps {
+  agents: Agent[];
+}
+
+const AgentTeam = ({ agents }: AgentTeamProps) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {agents.map((agent, idx) => (
