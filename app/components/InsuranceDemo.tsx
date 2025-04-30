@@ -141,13 +141,7 @@ const letterAnimation = {
 };
 
 // Character by character text animation component
-interface AnimatedTextProps {
-  text: string;
-  className?: string;
-  delay?: number;
-}
-
-const AnimatedText = ({ text, className, delay = 0 }: AnimatedTextProps) => {
+const AnimatedText = ({ text, className, delay = 0 }) => {
   return (
     <motion.p 
       className={className}
@@ -166,22 +160,12 @@ const AnimatedText = ({ text, className, delay = 0 }: AnimatedTextProps) => {
 };
 
 // Provider status component
-interface Provider {
-  name: string;
-  icon: string;
-}
-
-interface ProviderStatusProps {
-  providers: Provider[];
-  className?: string;
-}
-
-const ProviderStatus = ({ providers, className }: ProviderStatusProps) => {
+const ProviderStatus = ({ providers, className }) => {
   const [completedCount, setCompletedCount] = useState(0);
   
   useEffect(() => {
     if (completedCount < providers.length) {
-      const timer: NodeJS.Timeout = setTimeout(() => {
+      const timer = setTimeout(() => {
         setCompletedCount(prev => prev + 1);
       }, 300);
       return () => clearTimeout(timer);
@@ -217,24 +201,7 @@ const ProviderStatus = ({ providers, className }: ProviderStatusProps) => {
 };
 
 // Quote card component
-interface QuoteData {
-  provider: string;
-  monthlyRate: string;
-  coverage: string;
-  deductible: string;
-  rating: number;
-  bestFor: string;
-  features: string[];
-}
-
-interface QuoteCardProps {
-  quote: QuoteData;
-  isSelected: boolean;
-  onSelect: () => void;
-  delay: number;
-}
-
-const QuoteCard = ({ quote, isSelected, onSelect, delay }: QuoteCardProps) => (
+const QuoteCard = ({ quote, isSelected, onSelect, delay }) => (
   <motion.div 
     className={`p-4 rounded-lg ${isSelected ? 'bg-accent/30 border border-accent' : 'bg-white/5'}`}
     initial={{ opacity: 0, x: -20 }}
@@ -279,16 +246,7 @@ const QuoteCard = ({ quote, isSelected, onSelect, delay }: QuoteCardProps) => (
 );
 
 // Recommendation component
-interface Recommendation {
-  provider: string;
-  reasoning: string[];
-}
-
-interface RecommendationViewProps {
-  recommendation: Recommendation;
-}
-
-const RecommendationView = ({ recommendation }: RecommendationViewProps) => (
+const RecommendationView = ({ recommendation }) => (
   <motion.div 
     className="bg-black/20 rounded-lg p-4 border border-accent/30"
     initial={{ opacity: 0, y: 20 }}
@@ -328,28 +286,12 @@ const RecommendationView = ({ recommendation }: RecommendationViewProps) => (
 );
 
 // Policy finalization component
-interface PolicyStep {
-  name: string;
-}
-
-interface PolicyDetails {
-  provider: string;
-  policyNumber: string;
-  startDate: string;
-  documentLink: string;
-}
-
-interface PolicyFinalizationProps {
-  steps: PolicyStep[];
-  policyDetails: PolicyDetails;
-}
-
-const PolicyFinalization = ({ steps, policyDetails }: PolicyFinalizationProps) => {
+const PolicyFinalization = ({ steps, policyDetails }) => {
   const [currentStep, setCurrentStep] = useState(0);
   
   useEffect(() => {
     if (currentStep < steps.length) {
-      const timer: NodeJS.Timeout = setTimeout(() => {
+      const timer = setTimeout(() => {
         setCurrentStep(prev => prev + 1);
       }, 1000);
       return () => clearTimeout(timer);
@@ -470,7 +412,7 @@ export default function InsuranceDemo() {
   
   // Auto-advance through demo steps
   useEffect(() => {
-    let timer: NodeJS.Timeout | undefined;
+    let timer;
     if (autoPlay && activeStep < demoSteps.length - 1) {
       timer = setTimeout(() => {
         setActiveStep(prevStep => prevStep + 1);
@@ -613,7 +555,7 @@ export default function InsuranceDemo() {
   };
   
   return (
-    <section id="insurance-demo" ref={sectionRef} className="py-24 px-4 relative overflow-hidden">
+    <section id="insurance-demo" ref={sectionRef} className="py-16 px-4 relative overflow-hidden">
       <div className="absolute inset-0 z-0">
         <div className="absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-accent opacity-10 rounded-full blur-[150px]"></div>
       </div>
@@ -623,7 +565,7 @@ export default function InsuranceDemo() {
         style={{ opacity, scale, y }}
       >
         <motion.div 
-          className="text-center mb-16"
+          className="text-center mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -640,8 +582,8 @@ export default function InsuranceDemo() {
 
         <div className="flex flex-col items-center">
           {/* Demo Steps Navigation - Now horizontal and centered */}
-          <div className="glass-panel p-6 reveal-on-scroll w-full max-w-4xl mb-8">
-            <h3 className="text-xl font-semibold mb-6 text-center">Car Insurance Demo</h3>
+          <div className="glass-panel p-4 reveal-on-scroll w-full max-w-4xl mb-4">
+            <h3 className="text-xl font-semibold mb-3 text-center">Car Insurance Demo</h3>
             <div className="flex flex-wrap justify-center gap-3">
               {demoSteps.map((step, index) => (
                 <motion.button

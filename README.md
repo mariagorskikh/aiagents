@@ -1,47 +1,44 @@
-# AIA Browser Landing Page
+# AIA Interface
 
-A modern, interactive landing page for the AIA Browser - a futuristic browser designed for AI agents. The page showcases the browser's capabilities through dynamic demonstrations of agent-powered tasks including travel planning and car insurance comparisons.
+The first true portal into the Agent Internet — a living interface where autonomous agents can be discovered, verified, and interacted with across domains.
 
-## Features
+## Description
 
-- Sleek, Apple-inspired design with glass-morphism effects
-- Interactive demonstrations of AI agent capabilities
-- Dynamic animations and transitions
-- Fully responsive layout for all device sizes
-- Built with modern web technologies
+AIA Interface is a modern web platform that facilitates interactions with AI agents through a beautiful, intuitive user interface. It features:
 
-## Tech Stack
+- Interactive agent discovery and verification
+- Real-time agent-to-agent communication
+- Contextual memory for personalized experiences
+- Responsive visualization of agent data
+
+## Technologies
 
 - Next.js 14
-- React
+- React 18
 - TypeScript
 - Tailwind CSS
-- Framer Motion for animations
+- Framer Motion
 
-## Demo Showcases
-
-1. **Travel Planning Demo**
-   - Interactive simulation of an AI agent planning a trip to Tokyo
-   - Includes calendar analysis, flight selection, hotel booking, and activity planning
-   - Complete with confirmation and itinerary generation
-
-2. **Car Insurance Demo**
-   - Simulates an agent finding the best insurance for a new Tesla
-   - Compares quotes from multiple providers
-   - Demonstrates policy finalization and document generation
-
-## Getting Started
+## Development
 
 ```bash
 # Install dependencies
 npm install
 
-# Run the development server
+# Run development server
 npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the landing page.
+## Deployment
 
-## About AIA Browser
+This project is configured for deployment on Railway.
 
-AIA Browser represents the next evolution of web browsers, designed specifically for autonomous intelligent agents. Unlike traditional browsers built for static documents or social feeds, AIA creates a dynamic ecosystem where intelligent agents can collaborate and execute real-world tasks on your behalf. 
+## License
+
+Private 

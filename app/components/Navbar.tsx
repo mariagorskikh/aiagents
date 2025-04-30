@@ -22,7 +22,7 @@ export default function Navbar() {
   const opacity = useTransform(scrollYProgress, [0, 0.05, 0.1], [0.9, 0.95, 1]);
   const blur = useTransform(scrollYProgress, [0, 0.05], ["blur(0px)", "blur(8px)"]);
   
-  const navItems = ["Features", "Demo", "Vision", "Docs", "Blog"];
+  const navItems = ["Features", "Demo", "Vision"];
   
   return (
     <motion.header 

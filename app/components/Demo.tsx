@@ -125,13 +125,7 @@ const letterAnimation = {
 };
 
 // Character by character text animation component
-interface AnimatedTextProps {
-  text: string;
-  className?: string;
-  delay?: number;
-}
-
-const AnimatedText = ({ text, className, delay = 0 }: AnimatedTextProps) => {
+const AnimatedText = ({ text, className, delay = 0 }) => {
   return (
     <motion.p 
       className={className}
@@ -150,17 +144,7 @@ const AnimatedText = ({ text, className, delay = 0 }: AnimatedTextProps) => {
 };
 
 // Calendar visualization component
-interface CalendarEntry {
-  date: string;
-  event: string;
-}
-
-interface CalendarViewProps {
-  entries: CalendarEntry[];
-  className?: string;
-}
-
-const CalendarView = ({ entries, className }: CalendarViewProps) => (
+const CalendarView = ({ entries, className }) => (
   <div className={`${className} grid grid-cols-7 gap-1 bg-black/20 rounded-lg p-3 mt-3`}>
     {['M','T','W','T','F','S','S'].map((day, i) => (
       <div key={`header-${i}`} className="text-xs text-center text-text-secondary py-1">{day}</div>
@@ -186,22 +170,7 @@ const CalendarView = ({ entries, className }: CalendarViewProps) => (
 );
 
 // Flight card component
-interface FlightData {
-  airline: string;
-  price: string;
-  departure: string;
-  arrival: string;
-  duration: string;
-}
-
-interface FlightCardProps {
-  flight: FlightData;
-  isSelected: boolean;
-  onSelect: () => void;
-  delay: number;
-}
-
-const FlightCard = ({ flight, isSelected, onSelect, delay }: FlightCardProps) => (
+const FlightCard = ({ flight, isSelected, onSelect, delay }) => (
   <motion.div 
     className={`p-3 rounded-lg mb-2 ${isSelected ? 'bg-accent/30 border border-accent' : 'bg-white/5'}`}
     initial={{ opacity: 0, x: -20 }}
@@ -223,23 +192,7 @@ const FlightCard = ({ flight, isSelected, onSelect, delay }: FlightCardProps) =>
 );
 
 // Hotel card component
-interface HotelData {
-  name: string;
-  location: string;
-  price: string;
-  rating: string;
-  image: string;
-  amenities?: string[];
-}
-
-interface HotelCardProps {
-  hotel: HotelData;
-  isSelected: boolean;
-  onSelect: () => void;
-  delay: number;
-}
-
-const HotelCard = ({ hotel, isSelected, onSelect, delay }: HotelCardProps) => (
+const HotelCard = ({ hotel, isSelected, onSelect, delay }) => (
   <motion.div 
     className={`p-3 rounded-lg mb-2 ${isSelected ? 'bg-accent/30 border border-accent' : 'bg-white/5'}`}
     initial={{ opacity: 0, x: -20 }}
@@ -278,12 +231,7 @@ const HotelCard = ({ hotel, isSelected, onSelect, delay }: HotelCardProps) => (
 );
 
 // Hotel booking animation component
-interface HotelBookingProcessProps {
-  status: string;
-  hotelName: string;
-}
-
-const HotelBookingProcess = ({ status, hotelName }: HotelBookingProcessProps) => {
+const HotelBookingProcess = ({ status, hotelName }) => {
   const [stage, setStage] = useState(0);
   
   useEffect(() => {
@@ -370,18 +318,7 @@ const HotelBookingProcess = ({ status, hotelName }: HotelBookingProcessProps) =>
 };
 
 // Activity item component
-interface ActivityData {
-  name: string;
-  type: string;
-  time: string;
-}
-
-interface ActivityItemProps {
-  activity: ActivityData;
-  delay: number;
-}
-
-const ActivityItem = ({ activity, delay }: ActivityItemProps) => (
+const ActivityItem = ({ activity, delay }) => (
   <motion.div 
     className="p-2 rounded-lg mb-2 bg-white/5 flex justify-between"
     initial={{ opacity: 0, x: -20 }}
@@ -397,18 +334,7 @@ const ActivityItem = ({ activity, delay }: ActivityItemProps) => (
 );
 
 // Confirmation visualization component
-interface ConfirmationDetails {
-  tripDates: string;
-  flight: string;
-  hotel: string;
-  totalCost: string;
-}
-
-interface ConfirmationViewProps {
-  details: ConfirmationDetails;
-}
-
-const ConfirmationView = ({ details }: ConfirmationViewProps) => (
+const ConfirmationView = ({ details }) => (
   <motion.div 
     className="bg-black/20 rounded-lg p-4 mt-3 border border-accent/20"
     initial={{ opacity: 0, y: 20 }}
@@ -503,7 +429,7 @@ export default function Demo() {
   
   // Auto-advance through demo steps
   useEffect(() => {
-    let timer: NodeJS.Timeout | undefined;
+    let timer;
     if (autoPlay && activeStep < demoSteps.length - 1) {
       timer = setTimeout(() => {
         setActiveStep(prevStep => prevStep + 1);
@@ -517,7 +443,7 @@ export default function Demo() {
   
   // Booking status effect for hotel booking step
   useEffect(() => {
-    let timer: NodeJS.Timeout | undefined;
+    let timer;
     // Only run this effect when we're on the hotel booking step (index 3) and visible
     if (isVisible && activeStep === 3 && bookingStatus === "idle") {
       timer = setTimeout(() => {
@@ -733,7 +659,7 @@ export default function Demo() {
   };
   
   return (
-    <section id="demo" ref={sectionRef} className="py-24 px-4 relative overflow-hidden">
+    <section id="demo" ref={sectionRef} className="py-16 px-4 relative overflow-hidden">
       <div className="absolute inset-0 z-0">
         <div className="absolute top-1/2 right-1/4 w-[600px] h-[600px] bg-accent opacity-10 rounded-full blur-[150px]"></div>
       </div>
@@ -743,7 +669,7 @@ export default function Demo() {
         style={{ opacity, scale, y }}
       >
         <motion.div 
-          className="text-center mb-16"
+          className="text-center mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -760,8 +686,8 @@ export default function Demo() {
 
         <div className="flex flex-col items-center">
           {/* Demo Steps Navigation - Now horizontal and centered */}
-          <div className="glass-panel p-6 reveal-on-scroll w-full max-w-4xl mb-8">
-            <h3 className="text-xl font-semibold mb-6 text-center">Trip Planning Demo</h3>
+          <div className="glass-panel p-4 reveal-on-scroll w-full max-w-4xl mb-4">
+            <h3 className="text-xl font-semibold mb-3 text-center">Trip Planning Demo</h3>
             <div className="flex flex-wrap justify-center gap-3">
               {demoSteps.map((step, index) => (
                 <motion.button

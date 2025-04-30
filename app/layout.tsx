@@ -11,7 +11,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'AIA Browser - The Portal to Agent Internet',
+  title: 'AIA Interface - The Portal to Agent Internet',
   description: 'The first true portal into the Agent Internet — a living interface where autonomous agents can be discovered, verified, and interacted with across domains.',
 }
 

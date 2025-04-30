@@ -1,7 +1,9 @@
+import React from 'react';
 import Hero from './components/Hero';
 import Features from './components/Features';
 import Demo from './components/Demo';
 import InsuranceDemo from './components/InsuranceDemo';
+import WeddingDemo from './components/WeddingDemo';
 import Vision from './components/Vision';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
@@ -14,6 +16,7 @@ export default function Home() {
       <Features />
       <Demo />
       <InsuranceDemo />
+      <WeddingDemo />
       <Vision />
       <Footer />
     </main>
