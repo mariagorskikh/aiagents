@@ -236,7 +236,7 @@ interface QuoteCardProps {
 
 const QuoteCard = ({ quote, isSelected, onSelect, delay }: QuoteCardProps) => (
   <motion.div 
-    className={`p-4 rounded-lg ${isSelected ? 'bg-accent/30 border border-accent' : 'bg-white/5'}`}
+    className={`p-3 rounded-lg mb-2 ${isSelected ? 'bg-accent/30 border border-accent' : 'bg-white/5'}`}
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
     transition={{ delay }}
@@ -244,20 +244,20 @@ const QuoteCard = ({ quote, isSelected, onSelect, delay }: QuoteCardProps) => (
     onClick={onSelect}
   >
     <div className="flex justify-between items-center mb-3">
-      <span className="font-bold text-lg">{quote.provider}</span>
-      <span className="text-accent font-bold text-xl">{quote.monthlyRate}/mo</span>
+      <span className="font-bold text-sm sm:text-lg">{quote.provider}</span>
+      <span className="text-accent font-bold text-sm sm:text-xl">{quote.monthlyRate}/mo</span>
     </div>
     
     <div className="space-y-2">
-      <div className="flex justify-between text-sm">
+      <div className="flex justify-between text-xs sm:text-sm">
         <span className="text-text-secondary">Coverage:</span>
         <span>{quote.coverage}</span>
       </div>
-      <div className="flex justify-between text-sm">
+      <div className="flex justify-between text-xs sm:text-sm">
         <span className="text-text-secondary">Deductible:</span>
         <span>{quote.deductible}</span>
       </div>
-      <div className="flex justify-between text-sm">
+      <div className="flex justify-between text-xs sm:text-sm">
         <span className="text-text-secondary">Rating:</span>
         <div className="flex">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -267,10 +267,10 @@ const QuoteCard = ({ quote, isSelected, onSelect, delay }: QuoteCardProps) => (
       </div>
     </div>
     
-    <div className="mt-3 pt-3 border-t border-white/10">
-      <div className="text-xs font-medium text-accent mb-2">{quote.bestFor}</div>
+    <div className="mt-3 pt-2 border-t border-white/10">
+      <div className="text-xs font-medium text-accent mb-1">{quote.bestFor}</div>
       <div className="flex flex-wrap gap-1">
-        {quote.features.map((feature, i) => (
+        {quote.features.slice(0, 2).map((feature, i) => (
           <span key={i} className="text-xs bg-white/10 rounded-full px-2 py-0.5">{feature}</span>
         ))}
       </div>
@@ -562,7 +562,7 @@ export default function InsuranceDemo() {
                 delay={0.5}
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-h-64 overflow-y-auto pb-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-48 sm:max-h-64 overflow-y-auto pb-2">
               {(currentStep.content?.quotes || []).map((quote, idx) => (
                 <QuoteCard 
                   key={idx}
@@ -652,30 +652,30 @@ export default function InsuranceDemo() {
         </motion.div>
 
         <div className="flex flex-col items-center">
-          {/* Demo Steps Navigation - Now horizontal and centered */}
-          <div className="glass-panel p-4 reveal-on-scroll w-full max-w-4xl mb-4">
+          {/* Demo Steps Navigation - Now horizontal with improved mobile layout */}
+          <div className="glass-panel p-3 sm:p-4 reveal-on-scroll w-full max-w-4xl mb-4">
             <h3 className="text-xl font-semibold mb-3 text-center">Car Insurance Demo</h3>
-            <div className="flex flex-wrap justify-center gap-3">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
               {demoSteps.map((step, index) => (
                 <motion.button
                   key={step.id}
-                  className={`text-left p-4 rounded-lg transition-all ${
+                  className={`text-left p-2 sm:p-4 rounded-lg transition-all ${
                     activeStep === index 
                       ? 'bg-accent/20 border border-accent/40' 
                       : 'hover:bg-white/5'
                   }`}
-                  style={{ width: 'calc(16.66% - 12px)' }}
+                  style={{ width: 'calc(33.33% - 8px)', maxWidth: '120px' }}
                   onClick={() => setActiveStep(index)}
                   whileHover={{ y: -5 }}
                   transition={{ duration: 0.2 }}
                 >
                   <div className="flex flex-col items-center">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 ${
+                    <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mb-1 sm:mb-2 ${
                       activeStep === index ? 'bg-accent' : 'bg-white/10'
                     }`}>
                       {index + 1}
                     </div>
-                    <h4 className="font-medium text-center text-sm">{step.title}</h4>
+                    <h4 className="font-medium text-center text-xs sm:text-sm">{step.title}</h4>
                   </div>
                 </motion.button>
               ))}
@@ -683,14 +683,14 @@ export default function InsuranceDemo() {
             
             {/* Restart Demo Button */}
             <motion.button
-              className="mt-6 py-3 glass-button flex justify-center items-center mx-auto w-48"
+              className="mt-4 sm:mt-6 py-2 sm:py-3 glass-button flex justify-center items-center mx-auto w-36 sm:w-48"
               onClick={() => {
                 setActiveStep(0);
                 setAutoPlay(true);
               }}
               whileHover={{ backgroundColor: "rgba(255,255,255,0.15)" }}
             >
-              <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2 12C2 16.9706 6.02944 21 11 21C15.9706 21 20 16.9706 20 12C20 7.02944 15.9706 3 11 3C7.87781 3 5.1325 4.60879 3.64421 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 <path d="M2 7V3H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>

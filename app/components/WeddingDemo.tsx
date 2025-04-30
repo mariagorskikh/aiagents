@@ -202,7 +202,7 @@ interface AgentConversationProps {
 
 const AgentConversation = ({ conversation, className }: AgentConversationProps) => {
   return (
-    <div className={`${className} space-y-3`}>
+    <div className={`${className} space-y-2 sm:space-y-3`}>
       {conversation.map((entry, idx) => (
         <motion.div 
           key={idx}
@@ -211,11 +211,11 @@ const AgentConversation = ({ conversation, className }: AgentConversationProps) 
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 + (idx * 0.3) }}
         >
-          <div className="w-28 flex-shrink-0">
-            <div className="text-accent font-semibold text-sm">{entry.agent}</div>
+          <div className="w-20 sm:w-28 flex-shrink-0">
+            <div className="text-accent font-semibold text-xs sm:text-sm">{entry.agent}</div>
           </div>
-          <div className="flex-1 bg-white/5 rounded-lg p-3">
-            <div className="text-sm">{entry.message}</div>
+          <div className="flex-1 bg-white/5 rounded-lg p-2 sm:p-3">
+            <div className="text-xs sm:text-sm">{entry.message}</div>
           </div>
         </motion.div>
       ))}
@@ -226,11 +226,12 @@ const AgentConversation = ({ conversation, className }: AgentConversationProps) 
 // Venue option card component
 interface VenueOption {
   name: string;
-  location: string;
-  price: string;
   date: string;
+  price: string;
+  guestAvailability: string;
   image: string;
-  features: string[];
+  location?: string;
+  features?: string[];
 }
 
 interface VenueCardProps {
@@ -250,7 +251,7 @@ const VenueCard = ({ venue, isSelected, onSelect, delay }: VenueCardProps) => {
       whileHover={{ y: -5 }}
       onClick={onSelect}
     >
-      <div className="w-full h-40 overflow-hidden">
+      <div className="w-full h-32 sm:h-40 overflow-hidden">
         <motion.img 
           src={venue.image} 
           alt={venue.name}
@@ -260,14 +261,23 @@ const VenueCard = ({ venue, isSelected, onSelect, delay }: VenueCardProps) => {
           transition={{ duration: 1 }}
         />
       </div>
-      <div className="p-4 bg-white/5">
+      <div className="p-3 sm:p-4 bg-white/5">
         <div className="flex justify-between items-center">
-          <h4 className="font-medium">{venue.name}</h4>
-          <span className="text-accent text-sm">{venue.price}</span>
+          <h4 className="font-medium text-sm sm:text-base">{venue.name}</h4>
+          <span className="text-accent text-xs sm:text-sm">{venue.price}</span>
         </div>
         <div className="text-xs text-text-secondary flex justify-between mt-1">
-          <span>{venue.location}</span>
+          <span>{venue.location || "San Francisco"}</span>
           <span>{venue.date}</span>
+        </div>
+        <div className="mt-2 flex items-center text-xs">
+          <span className="text-text-secondary mr-2">Guest Availability:</span>
+          <span className="text-green-400">{venue.guestAvailability}</span>
+        </div>
+        <div className="mt-2 flex flex-wrap gap-1">
+          {(venue.features || ["Garden", "Indoor Option", "Catering"]).map((feature: string, i: number) => (
+            <span key={i} className="text-xs bg-white/10 rounded-full px-2 py-0.5">{feature}</span>
+          ))}
         </div>
       </div>
     </motion.div>
@@ -328,7 +338,7 @@ const AgentTeam = ({ agents }: AgentTeamProps) => {
 };
 
 // Timeline component
-const WeddingTimeline = ({ timeline }) => {
+const WeddingTimeline = ({ timeline }: { timeline: Array<{time: string, event: string}> }) => {
   return (
     <div className="space-y-3 relative">
       <div className="absolute left-[30px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-accent/50 via-accent-light/30 to-white/10"></div>
@@ -399,7 +409,7 @@ const WeddingTimeline = ({ timeline }) => {
 };
 
 // Guest stats visualization
-const GuestStats = ({ stats }) => {
+const GuestStats = ({ stats }: { stats: {invited: number, responded: number, attending: number, declined: number, pending: number} }) => {
   const total = stats.invited;
   const respondedPercentage = (stats.responded / total) * 100;
   const attendingPercentage = (stats.attending / total) * 100;
@@ -569,6 +579,27 @@ export default function WeddingDemo() {
         );
         
       case 1: // Venue Selection
+        // Type definition for venue options with features array
+        interface VenueWithFeatures {
+          name: string;
+          location: string;
+          price: string;
+          date?: string;
+          image: string;
+          features: string[];
+        }
+        
+        // Get venue options or provide defaults
+        const venueSelectionOptions: VenueWithFeatures[] = currentStep.content?.venueOptions || [
+          { 
+            name: "San Francisco Botanical Garden", 
+            location: "Golden Gate Park", 
+            price: "$12,500",
+            image: "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=600&auto=format&fit=crop",
+            features: ["Garden Setting", "Indoor Option", "Catering Available"] 
+          }
+        ];
+        
         return (
           <div className="h-full flex flex-col justify-center overflow-y-auto">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
@@ -579,7 +610,7 @@ export default function WeddingDemo() {
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-2">
-              {(currentStep.content?.venueOptions || []).map((venue, idx) => (
+              {venueSelectionOptions.map((venue, idx) => (
                 <motion.div 
                   key={idx}
                   className={`p-4 rounded-lg ${selectedVenue === idx ? 'bg-accent/30 border border-accent' : 'bg-white/5'}`}
@@ -614,7 +645,113 @@ export default function WeddingDemo() {
           </div>
         );
         
-      case 2: // Planning Decisions
+      case 2: // Dates & Venue
+        const venueOptions = currentStep.content?.venueOptions || [];
+        // Add location and features if they're missing
+        const enhancedVenueOptions = venueOptions.map((venue: VenueOption) => ({
+          ...venue,
+          location: venue.location || "San Francisco",
+          features: venue.features || ["Garden Setting", "Indoor Option", "Catering Available"]
+        }));
+        
+        return (
+          <div className="h-full flex flex-col justify-center overflow-y-auto">
+            <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
+              <AnimatedText 
+                text={currentStep.content?.agentResponse || "Based on venue availability and your guests' schedules, I recommend the SF Botanical Garden."}
+                className="text-white"
+                delay={0.5}
+              />
+            </div>
+            
+            {/* Visual representation of agent collaboration */}
+            <motion.div 
+              className="mb-4 bg-black/30 rounded-lg p-3 border border-accent/20"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+            >
+              <div className="text-xs text-center text-text-secondary mb-2">AGENT COLLABORATION</div>
+              <div className="flex items-center justify-center">
+                <div className="flex items-center">
+                  <motion.div 
+                    className="w-8 h-8 rounded-full bg-purple-500/30 flex items-center justify-center text-xs"
+                    animate={{ 
+                      scale: [1, 1.2, 1],
+                      boxShadow: ["0 0 0px rgba(168, 85, 247, 0.5)", "0 0 10px rgba(168, 85, 247, 0.8)", "0 0 0px rgba(168, 85, 247, 0.5)"]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    VA
+                  </motion.div>
+                  <motion.div className="h-[2px] w-8 bg-gradient-to-r from-purple-500/80 to-green-500/80" />
+                </div>
+                
+                <div className="flex items-center">
+                  <motion.div 
+                    className="w-8 h-8 rounded-full bg-green-500/30 flex items-center justify-center text-xs"
+                    animate={{ 
+                      scale: [1, 1.2, 1],
+                      boxShadow: ["0 0 0px rgba(74, 222, 128, 0.5)", "0 0 10px rgba(74, 222, 128, 0.8)", "0 0 0px rgba(74, 222, 128, 0.5)"] 
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                  >
+                    GA
+                  </motion.div>
+                  <motion.div className="h-[2px] w-8 bg-gradient-to-r from-green-500/80 to-blue-500/80" />
+                </div>
+                
+                <div className="flex items-center">
+                  <motion.div 
+                    className="w-8 h-8 rounded-full bg-blue-500/30 flex items-center justify-center text-xs"
+                    animate={{ 
+                      scale: [1, 1.2, 1],
+                      boxShadow: ["0 0 0px rgba(59, 130, 246, 0.5)", "0 0 10px rgba(59, 130, 246, 0.8)", "0 0 0px rgba(59, 130, 246, 0.5)"] 
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                  >
+                    BA
+                  </motion.div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-1 text-center mt-1">
+                <div className="text-[10px] sm:text-xs text-purple-400">Venue Agent</div>
+                <div className="text-[10px] sm:text-xs text-green-400">Guest Agent</div>
+                <div className="text-[10px] sm:text-xs text-blue-400">Budget Agent</div>
+              </div>
+            </motion.div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-48 sm:max-h-64 overflow-y-auto pb-2">
+              {enhancedVenueOptions.map((venue, idx) => (
+                <VenueCard 
+                  key={idx}
+                  venue={venue}
+                  isSelected={idx === (currentStep.content?.recommendedOption || 0)}
+                  onSelect={() => {}}
+                  delay={1 + (idx * 0.2)}
+                />
+              ))}
+            </div>
+            <AgentConversation 
+              conversation={currentStep.content?.agentConversation || []}
+              className="mt-4" 
+            />
+          </div>
+        );
+        
+      case 3: // Planning Decisions
+        interface Decision {
+          category: string;
+          selection: string;
+          status: string;
+          agent?: string;
+          choice?: string;
+          notes?: string;
+        }
+
+        const decisions: Decision[] = currentStep.content?.decisions || [];
+        
         return (
           <div className="h-full flex flex-col justify-center">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-6">
@@ -625,7 +762,7 @@ export default function WeddingDemo() {
               />
             </div>
             <div className="space-y-3">
-              {(currentStep.content?.decisions || []).map((decision, idx) => (
+              {decisions.map((decision, idx) => (
                 <motion.div 
                   key={idx}
                   className="bg-white/5 rounded-lg p-3"
@@ -641,9 +778,9 @@ export default function WeddingDemo() {
                       } mr-2`}></div>
                       <span className="font-medium">{decision.category}</span>
                     </div>
-                    <span className="text-xs text-text-secondary">{decision.agent}</span>
+                    <span className="text-xs text-text-secondary">{decision.agent || ''}</span>
                   </div>
-                  <div className="text-sm ml-5">{decision.choice}</div>
+                  <div className="text-sm ml-5">{decision.choice || decision.selection}</div>
                   {decision.notes && (
                     <div className="text-xs text-text-secondary ml-5 mt-1">{decision.notes}</div>
                   )}
@@ -653,58 +790,177 @@ export default function WeddingDemo() {
           </div>
         );
         
-      case 3: // Guest Management
+      case 4: // Guest Management
+        // Type definition for specialRequests to avoid TypeScript errors
+        interface GuestRequest {
+          guest: string;
+          request: string;
+          status: string;
+        }
+        
+        // Get stats from content or provide defaults
+        const guestStats = currentStep.content?.stats || {
+          invited: 112,
+          responded: 89,
+          attending: 78,
+          declined: 11,
+          pending: 23
+        };
+        
+        // Calculate percentages
+        const respondedPercentage = Math.round((guestStats.responded / guestStats.invited) * 100);
+        const attendingPercentage = Math.round((guestStats.attending / guestStats.invited) * 100);
+        
+        // Get special requests or provide defaults
+        const specialRequests: GuestRequest[] = currentStep.content?.specialRequests || [];
+        
         return (
-          <div className="h-full flex flex-col justify-center">
+          <div className="h-full flex flex-col justify-center overflow-y-auto">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
               <AnimatedText 
-                text={currentStep.content?.agentResponse || "The guest management agent is creating your guest list and tracking RSVPs."} 
+                text={currentStep.content?.agentResponse || "The guest management agent is creating your guest list and tracking RSVPs."}
                 className="text-white"
                 delay={0.5}
               />
             </div>
-            <div className="bg-white/5 rounded-lg p-3">
-              <div className="flex justify-between mb-3">
-                <div>
-                  <span className="text-sm text-text-secondary">Total Guests</span>
-                  <div className="text-2xl font-medium">{currentStep.content?.totalGuests || 120}</div>
-                </div>
-                <div>
-                  <span className="text-sm text-text-secondary">Confirmed</span>
-                  <div className="text-2xl font-medium text-green-400">{currentStep.content?.confirmedGuests || 87}</div>
-                </div>
-                <div>
-                  <span className="text-sm text-text-secondary">Pending</span>
-                  <div className="text-2xl font-medium text-yellow-400">{currentStep.content?.pendingGuests || 33}</div>
-                </div>
-              </div>
-              <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-4">
+            
+            <div className="bg-black/20 rounded-lg p-3 sm:p-4 mb-4">
+              <div className="flex flex-col sm:flex-row items-center justify-between mb-4">
                 <motion.div 
-                  className="h-full bg-accent"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${currentStep.content?.rsvpPercentage || 72}%` }}
-                  transition={{ duration: 1, delay: 1 }}
-                />
+                  className="flex flex-col items-center mb-3 sm:mb-0"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <div className="text-xs text-text-secondary">INVITED</div>
+                  <div className="text-2xl font-bold">{guestStats.invited}</div>
+                </motion.div>
+                
+                <motion.div 
+                  className="w-20 h-20 sm:w-24 sm:h-24 relative"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.8 }}
+                >
+                  <svg className="w-full h-full" viewBox="0 0 100 100">
+                    <circle 
+                      cx="50" cy="50" r="40" 
+                      fill="none" 
+                      stroke="rgba(255,255,255,0.1)" 
+                      strokeWidth="10" 
+                    />
+                    <motion.circle 
+                      cx="50" cy="50" r="40" 
+                      fill="none" 
+                      stroke="#9333ea" 
+                      strokeWidth="10" 
+                      strokeDasharray="251.2"
+                      strokeDashoffset="251.2"
+                      initial={{ strokeDashoffset: 251.2 }}
+                      animate={{ strokeDashoffset: 251.2 - (respondedPercentage / 100 * 251.2) }}
+                      transition={{ duration: 1.5, delay: 1 }}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <div className="text-xs text-text-secondary">Responded</div>
+                    <div className="text-xl font-bold">{respondedPercentage}%</div>
+                  </div>
+                </motion.div>
+                
+                <motion.div 
+                  className="flex flex-col items-center"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 }}
+                >
+                  <div className="text-xs text-text-secondary">ATTENDING</div>
+                  <div className="text-2xl font-bold text-green-400">{guestStats.attending}</div>
+                </motion.div>
               </div>
-              <div className="space-y-2 max-h-32 overflow-y-auto">
-                {(currentStep.content?.specialRequests || []).map((request, idx) => (
+              
+              <div className="space-y-2 max-h-32 overflow-y-auto mt-4">
+                <div className="text-xs font-medium text-text-secondary mb-2">SPECIAL REQUESTS</div>
+                {specialRequests.map((request, idx) => (
                   <motion.div 
                     key={idx}
-                    className="text-sm py-2 border-t border-white/10 flex justify-between"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1 + (idx * 0.2) }}
+                    className="bg-white/5 rounded-lg p-2 flex justify-between items-center text-xs sm:text-sm"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1.2 + (idx * 0.2) }}
                   >
-                    <span>{request.guest}</span>
-                    <span className="text-text-secondary">{request.request}</span>
+                    <div className="flex items-center">
+                      <div className={`w-2 h-2 rounded-full mr-2 ${
+                        request.status === "Confirmed" ? "bg-green-500" : 
+                        request.status === "Arranged" ? "bg-green-500" : 
+                        "bg-yellow-500"
+                      }`}></div>
+                      <span className="font-medium">{request.guest}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-text-secondary mr-2">{request.request}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        request.status === "Confirmed" || request.status === "Arranged" ? "bg-green-500/20 text-green-300" : 
+                        "bg-yellow-500/20 text-yellow-300"
+                      }`}>{request.status}</span>
+                    </div>
                   </motion.div>
                 ))}
               </div>
             </div>
+            
+            {/* Communication activity visualization */}
+            <motion.div 
+              className="bg-black/20 rounded-lg p-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.4 }}
+            >
+              <div className="text-xs font-medium text-text-secondary mb-2">COMMUNICATION ACTIVITY</div>
+              <div className="space-y-2">
+                {(currentStep.content?.communicationLog || []).map((comm, idx) => (
+                  <motion.div 
+                    key={idx}
+                    className="flex items-center text-xs sm:text-sm"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.6 + (idx * 0.15) }}
+                  >
+                    <div className="w-2 h-2 rounded-full bg-accent mr-2"></div>
+                    <div className="w-24 sm:w-28 flex-shrink-0 font-medium">{comm.type}</div>
+                    <div className="flex-1 mx-2 h-[2px] bg-gradient-to-r from-accent/50 to-transparent"></div>
+                    <div className="text-xs text-text-secondary">{comm.sent}</div>
+                    <div className="ml-2 text-xs">
+                      <span className={`px-1.5 py-0.5 rounded-full ${
+                        comm.status.includes("Delivered") ? "bg-green-500/20 text-green-300" : 
+                        comm.status.includes("Sent") ? "bg-yellow-500/20 text-yellow-300" : 
+                        "bg-blue-500/20 text-blue-300"
+                      }`}>{comm.status}</span>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           </div>
         );
         
-      case 4: // Agent Collaboration
+      case 5: // Agent Collaboration
+        // Type definition for communication entries
+        interface AgentMessage {
+          agent: string;
+          message: string;
+          time?: string;
+        }
+        
+        // Get agent messages or provide defaults
+        const agentMessages: AgentMessage[] = currentStep.content?.communicationLog || currentStep.content?.agentConversation || [
+          { agent: "VenueAgent", message: "All venue details confirmed for October 15." },
+          { agent: "CateringAgent", message: "Menu selections and dietary restrictions processed." },
+          { agent: "GuestAgent", message: "Final guest count: 78 confirmed attendees." },
+          { agent: "DecorAgent", message: "Floral arrangements and table settings finalized." },
+          { agent: "BudgetAgent", message: "Currently $650 under total budget." }
+        ];
+        
         return (
           <div className="h-full flex flex-col justify-center">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
@@ -715,13 +971,15 @@ export default function WeddingDemo() {
               />
             </div>
             <div className="space-y-2 max-h-64 overflow-y-auto">
-              {(currentStep.content?.communicationLog || []).map((entry, idx) => (
+              {agentMessages.map((entry, idx) => (
                 <motion.div 
                   key={idx}
                   className={`p-3 rounded-lg ${
                     entry.agent === "VenueAgent" ? "bg-purple-900/20 border-l-2 border-purple-400" :
                     entry.agent === "CateringAgent" ? "bg-blue-900/20 border-l-2 border-blue-400" :
                     entry.agent === "GuestAgent" ? "bg-green-900/20 border-l-2 border-green-400" :
+                    entry.agent === "DecorAgent" ? "bg-pink-900/20 border-l-2 border-pink-400" :
+                    entry.agent === "BudgetAgent" ? "bg-yellow-900/20 border-l-2 border-yellow-400" :
                     "bg-white/10"
                   }`}
                   initial={{ opacity: 0, y: 10 }}
@@ -730,7 +988,7 @@ export default function WeddingDemo() {
                 >
                   <div className="flex justify-between mb-1">
                     <span className="font-medium">{entry.agent}</span>
-                    <span className="text-xs text-text-secondary">{entry.time}</span>
+                    <span className="text-xs text-text-secondary">{entry.time || ""}</span>
                   </div>
                   <div className="text-sm">{entry.message}</div>
                 </motion.div>
@@ -739,96 +997,148 @@ export default function WeddingDemo() {
           </div>
         );
         
-      case 5: // Final Timeline
+      case 6: // Final Dashboard
         // Create default summary if it doesn't exist
         const summary = currentStep.content?.summary || {
-          date: "June 15, 2024",
-          location: "Sunset Gardens",
-          totalBudget: "$28,500",
-          timeline: [
-            { time: "3:00 PM", event: "Guest Arrival", status: "scheduled" },
-            { time: "4:00 PM", event: "Ceremony", status: "scheduled" },
-            { time: "5:00 PM", event: "Cocktail Hour", status: "scheduled" },
-            { time: "6:30 PM", event: "Dinner Service", status: "scheduled" },
-            { time: "8:00 PM", event: "First Dance", status: "scheduled" },
-            { time: "11:00 PM", event: "Event Conclusion", status: "scheduled" }
-          ],
-          tasks: [
-            { task: "Confirm final guest count", dueDate: "June 1", status: "pending" },
-            { task: "Final vendor payments", dueDate: "June 10", status: "pending" },
-            { task: "Wedding rehearsal", dueDate: "June 14", status: "scheduled" }
-          ]
+          date: "October 15, 2024",
+          venue: "San Francisco Botanical Garden",
+          guestCount: 78,
+          budget: {
+            original: "$25,000",
+            current: "$24,350",
+            status: "Under budget"
+          }
         };
         
+        // Get timeline from content or provide default
+        const timeline = currentStep.content?.timeline || [];
+        
+        // Get final checks from content or provide default
+        const finalChecks = currentStep.content?.finalChecks || [];
+        
         return (
-          <div className="h-full flex flex-col justify-center">
+          <div className="h-full flex flex-col justify-center overflow-y-auto">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
               <AnimatedText 
-                text={currentStep.content?.agentResponse || "Your wedding planning is complete! Here's the final timeline and summary."} 
+                text={currentStep.content?.agentResponse || "Your wedding planning is complete! Here's the final timeline and summary."}
                 className="text-white"
                 delay={0.5}
               />
             </div>
-            <div className="bg-white/5 rounded-lg p-4">
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <div>
-                  <div className="text-xs text-text-secondary mb-1">DATE</div>
-                  <div className="font-medium">{summary.date}</div>
+            
+            <motion.div
+              className="bg-black/20 rounded-lg p-3 mb-4 flex flex-wrap"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+            >
+              <div className="w-full md:w-1/2 mb-3 md:mb-0 md:border-r md:border-white/10 p-2">
+                <div className="text-center">
+                  <motion.div 
+                    className="text-3xl sm:text-4xl font-bold mb-1"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.9 }}
+                  >
+                    {summary.date}
+                  </motion.div>
+                  <motion.div
+                    className="text-sm text-text-secondary"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.1 }}
+                  >
+                    {summary.venue}
+                  </motion.div>
                 </div>
-                <div>
-                  <div className="text-xs text-text-secondary mb-1">VENUE</div>
-                  <div className="font-medium">{summary.location}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-text-secondary mb-1">BUDGET</div>
-                  <div className="font-medium text-accent">{summary.totalBudget}</div>
+                
+                <div className="flex justify-between items-center mt-4">
+                  <motion.div
+                    className="flex flex-col items-center"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.3 }}
+                  >
+                    <div className="text-xs text-text-secondary">GUEST COUNT</div>
+                    <div className="text-xl font-bold">{summary.guestCount}</div>
+                  </motion.div>
+                  
+                  <motion.div
+                    className="flex flex-col items-center"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.4 }}
+                  >
+                    <div className="text-xs text-text-secondary">BUDGET</div>
+                    <div className="text-xl font-bold text-accent">{summary.budget.current}</div>
+                    <div className="text-xs text-green-400">{summary.budget.status}</div>
+                  </motion.div>
                 </div>
               </div>
               
-              <div className="mb-4">
-                <div className="text-sm font-medium mb-2">Wedding Day Timeline</div>
-                <div className="space-y-2">
-                  {summary.timeline.map((item, idx) => (
-                    <motion.div 
+              <div className="w-full md:w-1/2 p-2">
+                <div className="text-xs font-medium text-text-secondary mb-2">FINAL CHECKLIST</div>
+                <div className="space-y-2 max-h-24 overflow-y-auto">
+                  {finalChecks.map((check, idx) => (
+                    <motion.div
                       key={idx}
-                      className="flex items-start"
+                      className="flex items-center text-xs sm:text-sm"
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 1 + (idx * 0.15) }}
+                      transition={{ delay: 1.5 + (idx * 0.1) }}
                     >
-                      <div className="w-20 text-accent font-medium">{item.time}</div>
-                      <div className="flex-1">
-                        <div className="font-medium">{item.event}</div>
+                      <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center mr-2">
+                        <svg className="w-3 h-3 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                          <path d="M5 12l5 5L20 7" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
                       </div>
+                      <div className="font-medium">{check.item}</div>
+                      <div className="flex-1 mx-2 h-[1px] bg-white/10"></div>
+                      <div className="text-xs text-green-400">{check.status}</div>
                     </motion.div>
                   ))}
                 </div>
               </div>
-              
-              <div>
-                <div className="text-sm font-medium mb-2">Final Checklist</div>
-                <div className="space-y-2">
-                  {summary.tasks.map((item, idx) => (
-                    <motion.div 
-                      key={idx}
-                      className="flex items-center"
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 2 + (idx * 0.15) }}
-                    >
-                      <div className={`w-4 h-4 rounded-full mr-2 ${
-                        item.status === "complete" ? "bg-green-500/30 border border-green-500" : 
-                        "bg-white/10 border border-white/30"
-                      }`}></div>
-                      <div className="flex-1">
-                        <div className="font-medium">{item.task}</div>
-                        <div className="text-xs text-text-secondary">Due: {item.dueDate}</div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+            </motion.div>
+            
+            <div className="mb-2 text-xs font-medium text-text-secondary">WEDDING DAY TIMELINE</div>
+            <div className="bg-black/20 rounded-lg p-3 max-h-48 overflow-y-auto">
+              <div className="space-y-2 relative">
+                <div className="absolute left-[24px] top-2 bottom-2 w-[2px] bg-gradient-to-b from-accent via-accent-light/50 to-transparent"></div>
+                
+                {timeline.map((item, idx) => (
+                  <motion.div
+                    key={idx}
+                    className="flex items-center pl-10 relative"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 2 + (idx * 0.1) }}
+                  >
+                    <div className="absolute left-0 text-xs font-medium">{item.time}</div>
+                    <motion.div
+                      className="absolute left-[24px] w-[10px] h-[10px] rounded-full bg-accent"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 2.1 + (idx * 0.1) }}
+                    />
+                    <div className="w-full py-1.5 px-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                      {item.event}
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </div>
+            
+            <motion.div
+              className="mt-4 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 2.8 }}
+            >
+              <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-accent to-accent-light/70 text-white text-sm">
+                Planning Completed Successfully
+              </div>
+            </motion.div>
           </div>
         );
         
@@ -864,30 +1174,30 @@ export default function WeddingDemo() {
         </motion.div>
 
         <div className="flex flex-col items-center">
-          {/* Demo Steps Navigation */}
-          <div className="glass-panel p-4 reveal-on-scroll w-full max-w-4xl mb-4">
+          {/* Demo Steps Navigation - Now with improved mobile layout */}
+          <div className="glass-panel p-3 sm:p-4 reveal-on-scroll w-full max-w-4xl mb-4">
             <h3 className="text-xl font-semibold mb-3 text-center">Wedding Planning Demo</h3>
-            <div className="flex flex-wrap justify-center gap-3">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
               {demoSteps.map((step, index) => (
                 <motion.button
                   key={step.id}
-                  className={`text-left p-4 rounded-lg transition-all ${
+                  className={`text-left p-2 sm:p-4 rounded-lg transition-all ${
                     activeStep === index 
                       ? 'bg-accent/20 border border-accent/40' 
                       : 'hover:bg-white/5'
                   }`}
-                  style={{ width: 'calc(16.66% - 12px)' }}
+                  style={{ width: 'calc(33.33% - 8px)', maxWidth: '120px' }}
                   onClick={() => setActiveStep(index)}
                   whileHover={{ y: -5 }}
                   transition={{ duration: 0.2 }}
                 >
                   <div className="flex flex-col items-center">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 ${
+                    <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mb-1 sm:mb-2 ${
                       activeStep === index ? 'bg-accent' : 'bg-white/10'
                     }`}>
                       {index + 1}
                     </div>
-                    <h4 className="font-medium text-center text-sm">{step.title}</h4>
+                    <h4 className="font-medium text-center text-xs sm:text-sm">{step.title}</h4>
                   </div>
                 </motion.button>
               ))}
@@ -895,14 +1205,14 @@ export default function WeddingDemo() {
             
             {/* Restart Demo Button */}
             <motion.button
-              className="mt-6 py-3 glass-button flex justify-center items-center mx-auto w-48"
+              className="mt-4 sm:mt-6 py-2 sm:py-3 glass-button flex justify-center items-center mx-auto w-36 sm:w-48"
               onClick={() => {
                 setActiveStep(0);
                 setAutoPlay(true);
               }}
               whileHover={{ backgroundColor: "rgba(255,255,255,0.15)" }}
             >
-              <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2 12C2 16.9706 6.02944 21 11 21C15.9706 21 20 16.9706 20 12C20 7.02944 15.9706 3 11 3C7.87781 3 5.1325 4.60879 3.64421 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 <path d="M2 7V3H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>

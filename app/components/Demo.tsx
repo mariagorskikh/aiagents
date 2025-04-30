@@ -261,15 +261,15 @@ const HotelCard = ({ hotel, isSelected, onSelect, delay }: HotelCardProps) => (
         />
       </div>
       <div className="flex justify-between items-center">
-        <span className="font-medium">{hotel.name}</span>
-        <span className="text-accent font-bold">{hotel.price}</span>
+        <span className="font-medium text-sm sm:text-base">{hotel.name}</span>
+        <span className="text-accent font-bold text-sm sm:text-base">{hotel.price}</span>
       </div>
-      <div className="flex justify-between text-sm text-text-secondary mt-1">
+      <div className="flex justify-between text-xs sm:text-sm text-text-secondary mt-1">
         <span>{hotel.location}</span>
         <span>{hotel.rating}</span>
       </div>
       <div className="flex flex-wrap gap-1 mt-2">
-        {hotel.amenities?.map((amenity, i) => (
+        {hotel.amenities?.slice(0, 3).map((amenity, i) => (
           <span key={i} className="text-xs bg-white/10 rounded-full px-2 py-0.5">{amenity}</span>
         ))}
       </div>
@@ -635,7 +635,7 @@ export default function Demo() {
                 delay={0.5}
               />
             </div>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 max-h-64 overflow-y-auto pb-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-h-48 sm:max-h-64 overflow-y-auto pb-2">
               {hotelOptions.map((hotel, idx) => (
                 <HotelCard 
                   key={idx}
@@ -775,30 +775,30 @@ export default function Demo() {
         </motion.div>
 
         <div className="flex flex-col items-center">
-          {/* Demo Steps Navigation - Now horizontal and centered */}
-          <div className="glass-panel p-4 reveal-on-scroll w-full max-w-4xl mb-4">
+          {/* Demo Steps Navigation - Now horizontal and with improved mobile layout */}
+          <div className="glass-panel p-3 sm:p-4 reveal-on-scroll w-full max-w-4xl mb-4">
             <h3 className="text-xl font-semibold mb-3 text-center">Trip Planning Demo</h3>
-            <div className="flex flex-wrap justify-center gap-3">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
               {demoSteps.map((step, index) => (
                 <motion.button
                   key={step.id}
-                  className={`text-left p-4 rounded-lg transition-all ${
+                  className={`text-left p-2 sm:p-4 rounded-lg transition-all ${
                     activeStep === index 
                       ? 'bg-accent/20 border border-accent/40' 
                       : 'hover:bg-white/5'
                   }`}
-                  style={{ width: 'calc(16.66% - 12px)' }}
+                  style={{ width: 'calc(33.33% - 8px)', maxWidth: '120px' }}
                   onClick={() => setActiveStep(index)}
                   whileHover={{ y: -5 }}
                   transition={{ duration: 0.2 }}
                 >
                   <div className="flex flex-col items-center">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 ${
+                    <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center mb-1 sm:mb-2 ${
                       activeStep === index ? 'bg-accent' : 'bg-white/10'
                     }`}>
                       {index + 1}
                     </div>
-                    <h4 className="font-medium text-center text-sm">{step.title}</h4>
+                    <h4 className="font-medium text-center text-xs sm:text-sm">{step.title}</h4>
                   </div>
                 </motion.button>
               ))}
@@ -806,14 +806,14 @@ export default function Demo() {
             
             {/* Restart Demo Button */}
             <motion.button
-              className="mt-6 py-3 glass-button flex justify-center items-center mx-auto w-48"
+              className="mt-4 sm:mt-6 py-2 sm:py-3 glass-button flex justify-center items-center mx-auto w-36 sm:w-48"
               onClick={() => {
                 setActiveStep(0);
                 setAutoPlay(true);
               }}
               whileHover={{ backgroundColor: "rgba(255,255,255,0.15)" }}
             >
-              <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2 12C2 16.9706 6.02944 21 11 21C15.9706 21 20 16.9706 20 12C20 7.02944 15.9706 3 11 3C7.87781 3 5.1325 4.60879 3.64421 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                 <path d="M2 7V3H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
