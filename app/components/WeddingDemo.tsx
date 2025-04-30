@@ -1,7 +1,7 @@
 "use client";
 
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { useState, useRef, useEffect } from 'react';
 
 // Wedding demo steps showing agent collaboration
 const demoSteps = [
@@ -164,7 +164,13 @@ const letterAnimation = {
 };
 
 // Character by character text animation component
-const AnimatedText = ({ text, className, delay = 0 }) => {
+interface AnimatedTextProps {
+  text: string;
+  className: string;
+  delay?: number;
+}
+
+const AnimatedText = ({ text, className, delay = 0 }: AnimatedTextProps) => {
   return (
     <motion.p 
       className={className}
@@ -457,8 +463,8 @@ export default function WeddingDemo() {
   const [activeStep, setActiveStep] = useState(0);
   const [autoPlay, setAutoPlay] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [selectedVenue, setSelectedVenue] = useState(0);
-  const sectionRef = useRef(null);
+  const [selectedVenue, setSelectedVenue] = useState(1); // Default selection
+  const sectionRef = useRef<HTMLElement | null>(null);
   
   // Scroll-based animations
   const { scrollYProgress } = useScroll({
@@ -499,11 +505,11 @@ export default function WeddingDemo() {
   
   // Auto-advance through demo steps
   useEffect(() => {
-    let timer;
+    let timer: NodeJS.Timeout | undefined;
     if (autoPlay && activeStep < demoSteps.length - 1) {
       timer = setTimeout(() => {
         setActiveStep(prevStep => prevStep + 1);
-      }, 5000); // Advance every 5 seconds
+      }, 6000); // Advance every 6 seconds
     }
     
     return () => {
@@ -517,19 +523,19 @@ export default function WeddingDemo() {
   // Dynamic content rendering based on active step
   const renderDemoContent = () => {
     switch (activeStep) {
-      case 0: // Initial Request
+      case 0: // Initial Planning
         return (
           <div className="h-full flex flex-col justify-center">
             <div className="bg-white/5 rounded-lg p-4 mb-4">
               <AnimatedText 
-                text={currentStep.content.userInput} 
+                text={currentStep.content?.userInput || "We want to plan our wedding for next summer."} 
                 className="text-white"
                 delay={0.5}
               />
             </div>
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content?.agentResponse || "I'll help coordinate your wedding planning. Let me call in specialist agents to assist."} 
                 className="text-white"
                 delay={2}
               />
@@ -537,279 +543,266 @@ export default function WeddingDemo() {
           </div>
         );
         
-      case 1: // Agent Team
+      case 1: // Venue Selection
         return (
-          <div className="h-full flex flex-col justify-center">
-            <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-6">
+          <div className="h-full flex flex-col justify-center overflow-y-auto">
+            <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content?.agentResponse || "The venue specialist has found some options based on your preferences."} 
                 className="text-white"
                 delay={0.5}
               />
             </div>
-            <AgentTeam agents={currentStep.content.agents} />
-          </div>
-        );
-        
-      case 2: // Dates & Venue
-        return (
-          <div className="h-full flex flex-col justify-center overflow-y-auto">
-            <AgentConversation 
-              conversation={currentStep.content.agentConversation} 
-              className="mb-6"
-            />
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-h-64 overflow-y-auto pb-4">
-              {currentStep.content.venueOptions.map((venue, idx) => (
-                <VenueCard 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-2">
+              {(currentStep.content?.venueOptions || []).map((venue, idx) => (
+                <motion.div 
                   key={idx}
-                  venue={venue}
-                  isSelected={idx === selectedVenue}
-                  onSelect={() => setSelectedVenue(idx)}
-                  delay={1 + (idx * 0.2)}
-                />
+                  className={`p-4 rounded-lg ${selectedVenue === idx ? 'bg-accent/30 border border-accent' : 'bg-white/5'}`}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1 + (idx * 0.2) }}
+                  onClick={() => setSelectedVenue(idx)}
+                >
+                  <div className="w-full h-24 rounded-lg mb-3 overflow-hidden">
+                    <motion.img 
+                      src={venue.image} 
+                      alt={venue.name}
+                      className="w-full h-full object-cover"
+                      initial={{ scale: 1.1 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 1 }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="font-medium">{venue.name}</span>
+                    <span className="text-accent">{venue.price}</span>
+                  </div>
+                  <div className="text-xs text-text-secondary mb-2">{venue.location}</div>
+                  <div className="flex flex-wrap gap-1">
+                    {venue.features.map((feature, i) => (
+                      <span key={i} className="text-xs bg-white/10 rounded-full px-2 py-0.5">{feature}</span>
+                    ))}
+                  </div>
+                </motion.div>
               ))}
             </div>
-            <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mt-6">
+          </div>
+        );
+        
+      case 2: // Planning Decisions
+        return (
+          <div className="h-full flex flex-col justify-center">
+            <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-6">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content?.agentResponse || "We're coordinating key decisions across multiple vendors."} 
                 className="text-white"
-                delay={3}
+                delay={0.5}
               />
+            </div>
+            <div className="space-y-3">
+              {(currentStep.content?.decisions || []).map((decision, idx) => (
+                <motion.div 
+                  key={idx}
+                  className="bg-white/5 rounded-lg p-3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1 + (idx * 0.3) }}
+                >
+                  <div className="flex justify-between items-center mb-1">
+                    <div className="flex items-center">
+                      <div className={`w-3 h-3 rounded-full ${
+                        decision.status === "confirmed" ? "bg-green-500" : 
+                        decision.status === "pending" ? "bg-yellow-500" : "bg-white/30"
+                      } mr-2`}></div>
+                      <span className="font-medium">{decision.category}</span>
+                    </div>
+                    <span className="text-xs text-text-secondary">{decision.agent}</span>
+                  </div>
+                  <div className="text-sm ml-5">{decision.choice}</div>
+                  {decision.notes && (
+                    <div className="text-xs text-text-secondary ml-5 mt-1">{decision.notes}</div>
+                  )}
+                </motion.div>
+              ))}
             </div>
           </div>
         );
         
-      case 3: // Vendor Coordination
+      case 3: // Guest Management
         return (
-          <div className="h-full flex flex-col justify-center overflow-y-auto">
-            <motion.div 
-              className="bg-accent/10 p-3 rounded-lg inline-block mb-4 self-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <span className="text-accent font-medium">Selected Theme: </span>
-              <span>{currentStep.content.theme}</span>
-            </motion.div>
-            
-            <AgentConversation 
-              conversation={currentStep.content.agentConversation} 
-              className="mb-6"
-            />
-            
-            <div className="glass-panel p-4">
-              <h4 className="text-sm font-medium mb-3">Vendor Decisions</h4>
-              <div className="space-y-2">
-                {currentStep.content.decisions.map((decision, idx) => (
+          <div className="h-full flex flex-col justify-center">
+            <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
+              <AnimatedText 
+                text={currentStep.content?.agentResponse || "The guest management agent is creating your guest list and tracking RSVPs."} 
+                className="text-white"
+                delay={0.5}
+              />
+            </div>
+            <div className="bg-white/5 rounded-lg p-3">
+              <div className="flex justify-between mb-3">
+                <div>
+                  <span className="text-sm text-text-secondary">Total Guests</span>
+                  <div className="text-2xl font-medium">{currentStep.content?.totalGuests || 120}</div>
+                </div>
+                <div>
+                  <span className="text-sm text-text-secondary">Confirmed</span>
+                  <div className="text-2xl font-medium text-green-400">{currentStep.content?.confirmedGuests || 87}</div>
+                </div>
+                <div>
+                  <span className="text-sm text-text-secondary">Pending</span>
+                  <div className="text-2xl font-medium text-yellow-400">{currentStep.content?.pendingGuests || 33}</div>
+                </div>
+              </div>
+              <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-4">
+                <motion.div 
+                  className="h-full bg-accent"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${currentStep.content?.rsvpPercentage || 72}%` }}
+                  transition={{ duration: 1, delay: 1 }}
+                />
+              </div>
+              <div className="space-y-2 max-h-32 overflow-y-auto">
+                {(currentStep.content?.specialRequests || []).map((request, idx) => (
                   <motion.div 
                     key={idx}
-                    className="flex justify-between items-center p-2 rounded-lg bg-white/5"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 2 + (idx * 0.2) }}
+                    className="text-sm py-2 border-t border-white/10 flex justify-between"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1 + (idx * 0.2) }}
                   >
-                    <div>
-                      <div className="text-xs text-text-secondary">{decision.category}</div>
-                      <div>{decision.selection}</div>
-                    </div>
-                    <div className={`px-2 py-1 rounded-full text-xs ${
-                      decision.status === 'Approved' ? 'bg-green-500/20 text-green-400' : 
-                      'bg-yellow-500/20 text-yellow-400'
-                    }`}>
-                      {decision.status}
-                    </div>
+                    <span>{request.guest}</span>
+                    <span className="text-text-secondary">{request.request}</span>
                   </motion.div>
                 ))}
               </div>
             </div>
-            
-            <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mt-6">
+          </div>
+        );
+        
+      case 4: // Agent Collaboration
+        return (
+          <div className="h-full flex flex-col justify-center">
+            <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content?.agentResponse || "Here's the communication between specialized agents working together on your wedding."}
                 className="text-white"
-                delay={3}
+                delay={0.5}
               />
+            </div>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {(currentStep.content?.communicationLog || []).map((entry, idx) => (
+                <motion.div 
+                  key={idx}
+                  className={`p-3 rounded-lg ${
+                    entry.agent === "VenueAgent" ? "bg-purple-900/20 border-l-2 border-purple-400" :
+                    entry.agent === "CateringAgent" ? "bg-blue-900/20 border-l-2 border-blue-400" :
+                    entry.agent === "GuestAgent" ? "bg-green-900/20 border-l-2 border-green-400" :
+                    "bg-white/10"
+                  }`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + (idx * 0.2) }}
+                >
+                  <div className="flex justify-between mb-1">
+                    <span className="font-medium">{entry.agent}</span>
+                    <span className="text-xs text-text-secondary">{entry.time}</span>
+                  </div>
+                  <div className="text-sm">{entry.message}</div>
+                </motion.div>
+              ))}
             </div>
           </div>
         );
         
-      case 4: // Guest Management
+      case 5: // Final Timeline
+        // Create default summary if it doesn't exist
+        const summary = currentStep.content?.summary || {
+          date: "June 15, 2024",
+          location: "Sunset Gardens",
+          totalBudget: "$28,500",
+          timeline: [
+            { time: "3:00 PM", event: "Guest Arrival", status: "scheduled" },
+            { time: "4:00 PM", event: "Ceremony", status: "scheduled" },
+            { time: "5:00 PM", event: "Cocktail Hour", status: "scheduled" },
+            { time: "6:30 PM", event: "Dinner Service", status: "scheduled" },
+            { time: "8:00 PM", event: "First Dance", status: "scheduled" },
+            { time: "11:00 PM", event: "Event Conclusion", status: "scheduled" }
+          ],
+          tasks: [
+            { task: "Confirm final guest count", dueDate: "June 1", status: "pending" },
+            { task: "Final vendor payments", dueDate: "June 10", status: "pending" },
+            { task: "Wedding rehearsal", dueDate: "June 14", status: "scheduled" }
+          ]
+        };
+        
         return (
-          <div className="h-full flex flex-col justify-center overflow-y-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <GuestStats stats={currentStep.content.stats} />
+          <div className="h-full flex flex-col justify-center">
+            <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
+              <AnimatedText 
+                text={currentStep.content?.agentResponse || "Your wedding planning is complete! Here's the final timeline and summary."} 
+                className="text-white"
+                delay={0.5}
+              />
+            </div>
+            <div className="bg-white/5 rounded-lg p-4">
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <div>
+                  <div className="text-xs text-text-secondary mb-1">DATE</div>
+                  <div className="font-medium">{summary.date}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-text-secondary mb-1">VENUE</div>
+                  <div className="font-medium">{summary.location}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-text-secondary mb-1">BUDGET</div>
+                  <div className="font-medium text-accent">{summary.totalBudget}</div>
+                </div>
+              </div>
               
-              <motion.div 
-                className="bg-black/20 rounded-lg p-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.7 }}
-              >
-                <h4 className="text-sm font-medium mb-3">Special Requests</h4>
+              <div className="mb-4">
+                <div className="text-sm font-medium mb-2">Wedding Day Timeline</div>
                 <div className="space-y-2">
-                  {currentStep.content.specialRequests.map((req, idx) => (
+                  {summary.timeline.map((item, idx) => (
                     <motion.div 
                       key={idx}
-                      className="p-2 rounded-lg bg-white/5"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 1 + (idx * 0.2) }}
+                      className="flex items-start"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 1 + (idx * 0.15) }}
                     >
-                      <div className="flex justify-between">
-                        <div className="font-medium text-sm">{req.guest}</div>
-                        <div className="text-xs bg-accent/20 text-accent px-2 py-0.5 rounded">{req.status}</div>
+                      <div className="w-20 text-accent font-medium">{item.time}</div>
+                      <div className="flex-1">
+                        <div className="font-medium">{item.event}</div>
                       </div>
-                      <div className="text-xs text-text-secondary mt-1">{req.request}</div>
                     </motion.div>
                   ))}
                 </div>
-              </motion.div>
-            </div>
-            
-            <motion.div 
-              className="glass-panel p-4 mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.5 }}
-            >
-              <h4 className="text-sm font-medium mb-3">Communication Timeline</h4>
-              <div className="space-y-2">
-                {currentStep.content.communicationLog.map((comm, idx) => (
-                  <div key={idx} className="flex justify-between p-2 rounded-lg bg-white/5 text-sm">
-                    <div>{comm.type}</div>
-                    <div className="text-text-secondary">{comm.sent}</div>
-                    <div className="text-xs bg-white/10 px-2 py-0.5 rounded-full">{comm.status}</div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-            
-            <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent">
-              <AnimatedText 
-                text={currentStep.content.agentResponse} 
-                className="text-white"
-                delay={2.5}
-              />
-            </div>
-          </div>
-        );
-        
-      case 5: // Final Dashboard
-        return (
-          <div className="h-full flex flex-col justify-center overflow-y-auto">
-            <motion.div
-              className="glass-panel p-4 mb-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <h4 className="text-sm font-medium mb-4 text-accent">Wedding Summary</h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <motion.div 
-                  className="p-3 rounded-lg bg-white/5 border border-white/10"
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.7 }}
-                >
-                  <div className="text-xs text-text-secondary mb-1">DATE</div>
-                  <div className="font-medium flex items-center">
-                    <svg className="w-4 h-4 mr-2 text-accent" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M8 2V6M16 2V6M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    {currentStep.content.summary.date}
-                  </div>
-                </motion.div>
-                <motion.div 
-                  className="p-3 rounded-lg bg-white/5 border border-white/10"
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.8 }}
-                >
-                  <div className="text-xs text-text-secondary mb-1">VENUE</div>
-                  <div className="font-medium flex items-center">
-                    <svg className="w-4 h-4 mr-2 text-accent" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3 21H21M3 18H21M5 18V9.5C5 7.567 6.567 6 8.5 6H15.5C17.433 6 19 7.567 19 9.5V18M9 6V3H15V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    {currentStep.content.summary.venue}
-                  </div>
-                </motion.div>
-                <motion.div 
-                  className="p-3 rounded-lg bg-white/5 border border-white/10"
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.9 }}
-                >
-                  <div className="text-xs text-text-secondary mb-1">GUESTS</div>
-                  <div className="font-medium flex items-center">
-                    <svg className="w-4 h-4 mr-2 text-accent" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M17 21V19C17 16.7909 15.2091 15 13 15H5C2.79086 15 1 16.7909 1 19V21M9 11C6.79086 11 5 9.20914 5 7C5 4.79086 6.79086 3 9 3C11.2091 3 13 4.79086 13 7C13 9.20914 11.2091 11 9 11ZM23 21V19C22.9986 17.1771 21.765 15.5857 20 15.13M16 3.13C17.7699 3.58051 19.0078 5.17395 19.0078 7.005C19.0078 8.83605 17.7699 10.4295 16 10.88" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    {currentStep.content.summary.guestCount} confirmed
-                  </div>
-                </motion.div>
-                <motion.div 
-                  className="p-3 rounded-lg bg-white/5 border border-white/10"
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 1 }}
-                >
-                  <div className="text-xs text-text-secondary mb-1">BUDGET</div>
-                  <div className="font-medium flex items-center">
-                    <svg className="w-4 h-4 mr-2 text-accent" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 1V23M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6312 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    {currentStep.content.summary.budget.current}
-                    <span className="ml-2 text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">
-                      {currentStep.content.summary.budget.status}
-                    </span>
-                  </div>
-                </motion.div>
               </div>
               
-              <h4 className="text-sm font-medium mb-3 mt-8 text-accent">Wedding Day Timeline</h4>
-              <WeddingTimeline timeline={currentStep.content.timeline} />
-            </motion.div>
-            
-            <motion.div
-              className="glass-panel p-4 mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.5 }}
-            >
-              <h4 className="text-sm font-medium mb-4 text-accent">Final Checklist</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {currentStep.content.finalChecks.map((check, idx) => (
-                  <motion.div 
-                    key={idx}
-                    className="flex items-center p-3 rounded-lg bg-white/5 border border-white/10 hover:border-accent/30 transition-colors"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 2 + (idx * 0.2) }}
-                  >
+              <div>
+                <div className="text-sm font-medium mb-2">Final Checklist</div>
+                <div className="space-y-2">
+                  {summary.tasks.map((item, idx) => (
                     <motion.div 
-                      className="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mr-4 flex-shrink-0"
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 0.5, delay: 2.2 + (idx * 0.2) }}
+                      key={idx}
+                      className="flex items-center"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 2 + (idx * 0.15) }}
                     >
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
+                      <div className={`w-4 h-4 rounded-full mr-2 ${
+                        item.status === "complete" ? "bg-green-500/30 border border-green-500" : 
+                        "bg-white/10 border border-white/30"
+                      }`}></div>
+                      <div className="flex-1">
+                        <div className="font-medium">{item.task}</div>
+                        <div className="text-xs text-text-secondary">Due: {item.dueDate}</div>
+                      </div>
                     </motion.div>
-                    <div className="flex-1">
-                      <div className="font-medium text-white">{check.item}</div>
-                      <div className="text-xs text-text-secondary mt-1">{check.status}</div>
-                    </div>
-                  </motion.div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </motion.div>
-            
-            <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent">
-              <AnimatedText 
-                text={currentStep.content.agentResponse} 
-                className="text-white"
-                delay={3}
-              />
             </div>
           </div>
         );
