@@ -186,7 +186,22 @@ const CalendarView = ({ entries, className }: CalendarViewProps) => (
 );
 
 // Flight card component
-const FlightCard = ({ flight, isSelected, onSelect, delay }) => (
+interface FlightOption {
+  airline: string;
+  departure: string;
+  arrival: string;
+  price: string;
+  duration: string;
+}
+
+interface FlightCardProps {
+  flight: FlightOption;
+  isSelected: boolean;
+  onSelect: () => void;
+  delay: number;
+}
+
+const FlightCard = ({ flight, isSelected, onSelect, delay }: FlightCardProps) => (
   <motion.div 
     className={`p-3 rounded-lg mb-2 ${isSelected ? 'bg-accent/30 border border-accent' : 'bg-white/5'}`}
     initial={{ opacity: 0, x: -20 }}
@@ -208,7 +223,23 @@ const FlightCard = ({ flight, isSelected, onSelect, delay }) => (
 );
 
 // Hotel card component
-const HotelCard = ({ hotel, isSelected, onSelect, delay }) => (
+interface HotelOption {
+  name: string;
+  location: string;
+  price: string;
+  rating: string;
+  image: string;
+  amenities?: string[];
+}
+
+interface HotelCardProps {
+  hotel: HotelOption;
+  isSelected: boolean;
+  onSelect: () => void;
+  delay: number;
+}
+
+const HotelCard = ({ hotel, isSelected, onSelect, delay }: HotelCardProps) => (
   <motion.div 
     className={`p-3 rounded-lg mb-2 ${isSelected ? 'bg-accent/30 border border-accent' : 'bg-white/5'}`}
     initial={{ opacity: 0, x: -20 }}
@@ -247,7 +278,12 @@ const HotelCard = ({ hotel, isSelected, onSelect, delay }) => (
 );
 
 // Hotel booking animation component
-const HotelBookingProcess = ({ status, hotelName }) => {
+interface HotelBookingProcessProps {
+  status: string;
+  hotelName: string;
+}
+
+const HotelBookingProcess = ({ status, hotelName }: HotelBookingProcessProps) => {
   const [stage, setStage] = useState(0);
   
   useEffect(() => {
@@ -334,7 +370,18 @@ const HotelBookingProcess = ({ status, hotelName }) => {
 };
 
 // Activity item component
-const ActivityItem = ({ activity, delay }) => (
+interface Activity {
+  name: string;
+  type: string;
+  time: string;
+}
+
+interface ActivityItemProps {
+  activity: Activity;
+  delay: number;
+}
+
+const ActivityItem = ({ activity, delay }: ActivityItemProps) => (
   <motion.div 
     className="p-2 rounded-lg mb-2 bg-white/5 flex justify-between"
     initial={{ opacity: 0, x: -20 }}
@@ -350,7 +397,18 @@ const ActivityItem = ({ activity, delay }) => (
 );
 
 // Confirmation visualization component
-const ConfirmationView = ({ details }) => (
+interface ConfirmationDetails {
+  tripDates: string;
+  flight: string;
+  hotel: string;
+  totalCost: string;
+}
+
+interface ConfirmationViewProps {
+  details: ConfirmationDetails;
+}
+
+const ConfirmationView = ({ details }: ConfirmationViewProps) => (
   <motion.div 
     className="bg-black/20 rounded-lg p-4 mt-3 border border-accent/20"
     initial={{ opacity: 0, y: 20 }}
@@ -651,6 +709,13 @@ export default function Demo() {
         );
         
       case 5: // Confirmation
+        const confirmationDetails = currentStep.content.confirmationDetails || {
+          tripDates: "May 20-25, 2024",
+          flight: "JAL JL7075",
+          hotel: "Cerulean Tower Tokyu Hotel",
+          totalCost: "$2,850"
+        };
+        
         return (
           <div className="h-full flex flex-col justify-center">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
@@ -660,7 +725,7 @@ export default function Demo() {
                 delay={0.5}
               />
             </div>
-            <ConfirmationView details={currentStep.content.confirmationDetails} />
+            <ConfirmationView details={confirmationDetails} />
             <motion.div 
               className="flex justify-center mt-4"
               initial={{ opacity: 0 }}
