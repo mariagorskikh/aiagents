@@ -493,14 +493,14 @@ export default function InsuranceDemo() {
           <div className="h-full flex flex-col justify-center">
             <div className="bg-white/5 rounded-lg p-4 mb-4">
               <AnimatedText 
-                text={currentStep.content.userInput} 
+                text={currentStep.content?.userInput || "Looking for car insurance for my new Tesla"} 
                 className="text-white"
                 delay={0.5}
               />
             </div>
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content?.agentResponse || "I'll help you find the best insurance for your Tesla."} 
                 className="text-white"
                 delay={2}
               />
@@ -513,13 +513,13 @@ export default function InsuranceDemo() {
           <div className="h-full flex flex-col justify-center">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-6">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content?.agentResponse || "Let me gather some information about your driving history."} 
                 className="text-white"
                 delay={0.5}
               />
             </div>
             <div className="space-y-3">
-              {currentStep.content.questions.map((item, idx) => (
+              {(currentStep.content?.questions || []).map((item, idx) => (
                 <motion.div 
                   key={idx}
                   className="bg-white/5 rounded-lg p-3"
@@ -540,13 +540,13 @@ export default function InsuranceDemo() {
           <div className="h-full flex flex-col justify-center">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-6">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content?.agentResponse || "Searching available insurance providers..."} 
                 className="text-white"
                 delay={0.5}
               />
             </div>
             <ProviderStatus 
-              providers={currentStep.content.providers} 
+              providers={(currentStep.content?.providers as Provider[]) || []} 
               className="mt-4" 
             />
           </div>
@@ -557,13 +557,13 @@ export default function InsuranceDemo() {
           <div className="h-full flex flex-col justify-center overflow-y-auto">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content?.agentResponse || "Here are the best quotes for your Tesla."} 
                 className="text-white"
                 delay={0.5}
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-h-64 overflow-y-auto pb-2">
-              {currentStep.content.quotes.map((quote, idx) => (
+              {(currentStep.content?.quotes || []).map((quote, idx) => (
                 <QuoteCard 
                   key={idx}
                   quote={quote}
@@ -577,32 +577,45 @@ export default function InsuranceDemo() {
         );
         
       case 4: // Recommendation
+        const recommendation = currentStep.content?.recommendation || {
+          provider: "StateFarm",
+          reasoning: ["Best coverage for your needs", "Excellent customer service ratings"]
+        };
+        
         return (
           <div className="h-full flex flex-col justify-center">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content?.agentResponse || "Based on your requirements, here's my recommendation:"} 
                 className="text-white"
                 delay={0.5}
               />
             </div>
-            <RecommendationView recommendation={currentStep.content.recommendation} />
+            <RecommendationView recommendation={recommendation} />
           </div>
         );
         
       case 5: // Policy Finalization
+        const steps = (currentStep.content?.steps as Step[]) || [];
+        const policyDetails = currentStep.content?.policyDetails || {
+          provider: "StateFarm",
+          policyNumber: "EV8294",
+          startDate: "2024-05-15",
+          documentLink: "Download Policy"
+        };
+        
         return (
           <div className="h-full flex flex-col justify-center">
             <div className="bg-accent/10 rounded-lg p-4 border-l-2 border-accent mb-4">
               <AnimatedText 
-                text={currentStep.content.agentResponse} 
+                text={currentStep.content?.agentResponse || "Finalizing your policy now..."} 
                 className="text-white"
                 delay={0.5}
               />
             </div>
             <PolicyFinalization 
-              steps={currentStep.content.steps}
-              policyDetails={currentStep.content.policyDetails}
+              steps={steps}
+              policyDetails={policyDetails}
             />
           </div>
         );
