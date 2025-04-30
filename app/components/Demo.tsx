@@ -288,8 +288,8 @@ const HotelBookingProcess = ({ status, hotelName }: HotelBookingProcessProps) =>
   
   useEffect(() => {
     if (status === "booking") {
-      const timer1 = setTimeout(() => setStage(1), 2000);
-      const timer2 = setTimeout(() => setStage(2), 4000);
+      const timer1: NodeJS.Timeout = setTimeout(() => setStage(1), 2000);
+      const timer2: NodeJS.Timeout = setTimeout(() => setStage(2), 4000);
       
       return () => {
         clearTimeout(timer1);
@@ -503,7 +503,7 @@ export default function Demo() {
   
   // Auto-advance through demo steps
   useEffect(() => {
-    let timer;
+    let timer: NodeJS.Timeout | undefined;
     if (autoPlay && activeStep < demoSteps.length - 1) {
       timer = setTimeout(() => {
         setActiveStep(prevStep => prevStep + 1);
@@ -517,7 +517,7 @@ export default function Demo() {
   
   // Booking status effect for hotel booking step
   useEffect(() => {
-    let timer;
+    let timer: NodeJS.Timeout | undefined;
     // Only run this effect when we're on the hotel booking step (index 3) and visible
     if (isVisible && activeStep === 3 && bookingStatus === "idle") {
       timer = setTimeout(() => {
