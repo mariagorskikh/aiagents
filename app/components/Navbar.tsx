@@ -69,32 +69,6 @@ export default function Navbar() {
             </motion.a>
           ))}
         </nav>
-        
-        {/* CTA Button */}
-        <div className="flex items-center space-x-4">
-          <motion.a 
-            href="#" 
-            className="hidden sm:inline-block glass-button"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
-            Sign Up
-          </motion.a>
-          <motion.a 
-            href="#" 
-            className="accent-button"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-          >
-            Try Beta
-          </motion.a>
-        </div>
       </div>
     </motion.header>
   );
