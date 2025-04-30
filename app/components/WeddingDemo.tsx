@@ -189,7 +189,18 @@ const AnimatedText = ({ text, className, delay = 0 }: AnimatedTextProps) => {
 };
 
 // Agent conversation component
-const AgentConversation = ({ conversation, className }) => {
+interface AgentConversationEntry {
+  agent: string;
+  message: string;
+  timestamp?: string;
+}
+
+interface AgentConversationProps {
+  conversation: AgentConversationEntry[];
+  className?: string;
+}
+
+const AgentConversation = ({ conversation, className }: AgentConversationProps) => {
   return (
     <div className={`${className} space-y-3`}>
       {conversation.map((entry, idx) => (
