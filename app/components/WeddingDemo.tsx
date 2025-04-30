@@ -224,47 +224,50 @@ const AgentConversation = ({ conversation, className }: AgentConversationProps) 
 };
 
 // Venue option card component
-const VenueCard = ({ venue, isSelected, onSelect, delay }) => {
+interface VenueOption {
+  name: string;
+  location: string;
+  price: string;
+  date: string;
+  image: string;
+  features: string[];
+}
+
+interface VenueCardProps {
+  venue: VenueOption;
+  isSelected: boolean;
+  onSelect: () => void;
+  delay: number;
+}
+
+const VenueCard = ({ venue, isSelected, onSelect, delay }: VenueCardProps) => {
   return (
     <motion.div 
       className={`rounded-lg overflow-hidden ${isSelected ? 'ring-2 ring-accent' : ''}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
       transition={{ delay }}
       whileHover={{ y: -5 }}
       onClick={onSelect}
     >
-      <div className="h-40 overflow-hidden">
+      <div className="w-full h-40 overflow-hidden">
         <motion.img 
           src={venue.image} 
           alt={venue.name}
           className="w-full h-full object-cover"
-          whileHover={{ scale: 1.05 }}
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1 }}
         />
       </div>
-      <div className={`p-4 ${isSelected ? 'bg-accent/20' : 'bg-white/5'}`}>
-        <h4 className="font-medium mb-1">{venue.name}</h4>
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div>
-            <div className="text-xs text-text-secondary">DATE</div>
-            <div>{venue.date}</div>
-          </div>
-          <div>
-            <div className="text-xs text-text-secondary">PRICE</div>
-            <div>{venue.price}</div>
-          </div>
-          <div className="col-span-2">
-            <div className="text-xs text-text-secondary">GUEST AVAILABILITY</div>
-            <div className="flex items-center">
-              <div className="w-full bg-white/10 rounded-full h-2 mr-2">
-                <div 
-                  className="bg-accent rounded-full h-2" 
-                  style={{ width: venue.guestAvailability }}
-                ></div>
-              </div>
-              <span>{venue.guestAvailability}</span>
-            </div>
-          </div>
+      <div className="p-4 bg-white/5">
+        <div className="flex justify-between items-center">
+          <h4 className="font-medium">{venue.name}</h4>
+          <span className="text-accent text-sm">{venue.price}</span>
+        </div>
+        <div className="text-xs text-text-secondary flex justify-between mt-1">
+          <span>{venue.location}</span>
+          <span>{venue.date}</span>
         </div>
       </div>
     </motion.div>
