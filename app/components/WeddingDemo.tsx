@@ -46,21 +46,27 @@ const demoSteps = [
           date: "October 15, 2024", 
           price: "$12,500",
           guestAvailability: "92%",
-          image: "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=600&auto=format&fit=crop"
-        },
-        { 
-          name: "San Francisco Botanical Garden", 
-          date: "October 22, 2024", 
-          price: "$11,800",
-          guestAvailability: "84%",
-          image: "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=600&auto=format&fit=crop"
+          image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80", // Lush garden
+          location: "Golden Gate Park",
+          features: ["Garden Setting", "Outdoor Ceremony", "Botanical Backdrop"]
         },
         { 
           name: "The Palace Hotel", 
-          date: "October 15, 2024", 
+          date: "October 22, 2024", 
           price: "$18,200",
-          guestAvailability: "92%",
-          image: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&auto=format&fit=crop"
+          guestAvailability: "88%",
+          image: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80", // Grand ballroom
+          location: "Downtown San Francisco",
+          features: ["Historic Venue", "Ballroom", "Luxury Suites"]
+        },
+        { 
+          name: "SF Skyline Rooftop", 
+          date: "October 29, 2024", 
+          price: "$14,000",
+          guestAvailability: "85%",
+          image: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=800&q=80", // Rooftop city view
+          location: "Civic Center",
+          features: ["City View", "Rooftop Access", "Modern Space"]
         }
       ],
       recommendedOption: 0,
@@ -590,14 +596,41 @@ export default function WeddingDemo() {
         }
         
         // Get venue options or provide defaults
-        const venueSelectionOptions: VenueWithFeatures[] = currentStep.content?.venueOptions || [
-          { 
-            name: "San Francisco Botanical Garden", 
-            location: "Golden Gate Park", 
+        const venueSelectionOptions: VenueWithFeatures[] = (currentStep.content?.venueOptions || [
+          {
+            name: "San Francisco Botanical Garden",
+            location: "Golden Gate Park",
             price: "$12,500",
-            image: "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?w=600&auto=format&fit=crop",
-            features: ["Garden Setting", "Indoor Option", "Catering Available"] 
+            image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+            features: ["Garden Setting", "Outdoor Ceremony", "Botanical Backdrop"]
+          },
+          {
+            name: "The Palace Hotel",
+            location: "Downtown San Francisco",
+            price: "$18,200",
+            image: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80",
+            features: ["Historic Venue", "Ballroom", "Luxury Suites"]
+          },
+          {
+            name: "SF Skyline Rooftop",
+            location: "Civic Center",
+            price: "$14,000",
+            image: "https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=800&q=80",
+            features: ["City View", "Rooftop Access", "Modern Space"]
           }
+        ]).map((venue: any) => ({
+          ...venue,
+          location: venue.location || "San Francisco",
+          features: venue.features || ["Garden Setting", "Indoor Option", "Catering Available"]
+        }));
+        
+        // Agent team visual
+        const agentTeam = [
+          { name: "VenueAgent", color: "bg-purple-500/30", border: "border-purple-400", active: true, icon: "🏛️" },
+          { name: "GuestAgent", color: "bg-green-500/30", border: "border-green-400", active: true, icon: "🧑‍🤝‍🧑" },
+          { name: "CateringAgent", color: "bg-blue-500/30", border: "border-blue-400", active: false, icon: "🍽️" },
+          { name: "DecorAgent", color: "bg-pink-500/30", border: "border-pink-400", active: false, icon: "🌸" },
+          { name: "BudgetAgent", color: "bg-yellow-500/30", border: "border-yellow-400", active: true, icon: "💰" },
         ];
         
         return (
@@ -609,6 +642,28 @@ export default function WeddingDemo() {
                 delay={0.5}
               />
             </div>
+            {/* Animated agent team row */}
+            <motion.div className="flex items-center justify-center mb-6 relative">
+              <div className="absolute left-0 right-0 top-1/2 h-1 bg-gradient-to-r from-purple-400 via-green-400 via-blue-400 via-pink-400 to-yellow-400 opacity-30 z-0" style={{height: 4}} />
+              {agentTeam.map((agent, idx) => (
+                <motion.div
+                  key={agent.name}
+                  className={`relative z-10 flex flex-col items-center mx-2`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 + idx * 0.2 }}
+                >
+                  <motion.div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl font-bold border-4 ${agent.color} ${agent.border} ${agent.active ? 'shadow-lg shadow-accent/40' : ''}`}
+                    animate={agent.active ? { scale: [1, 1.15, 1], boxShadow: ["0 0 0px #fff", "0 0 16px #fff", "0 0 0px #fff"] } : {}}
+                    transition={agent.active ? { duration: 2, repeat: Infinity } : {}}
+                  >
+                    {agent.icon}
+                  </motion.div>
+                  <span className="mt-2 text-xs text-text-secondary font-medium">{agent.name.replace('Agent','')}</span>
+                </motion.div>
+              ))}
+            </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-2">
               {venueSelectionOptions.map((venue, idx) => (
                 <motion.div 
@@ -619,24 +674,16 @@ export default function WeddingDemo() {
                   transition={{ delay: 1 + (idx * 0.2) }}
                   onClick={() => setSelectedVenue(idx)}
                 >
-                  <div className="w-full h-24 rounded-lg mb-3 overflow-hidden">
-                    <motion.img 
-                      src={venue.image} 
-                      alt={venue.name}
-                      className="w-full h-full object-cover"
-                      initial={{ scale: 1.1 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: 1 }}
-                    />
+                  <div className="flex flex-col gap-1 mb-2">
+                    <div className="text-lg font-semibold text-white drop-shadow-sm">{venue.name}</div>
+                    <div className="text-xs text-text-secondary">{venue.location}</div>
                   </div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="font-medium">{venue.name}</span>
-                    <span className="text-accent">{venue.price}</span>
+                    <span className="font-medium text-accent">{venue.price}</span>
                   </div>
-                  <div className="text-xs text-text-secondary mb-2">{venue.location}</div>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1 mt-2">
                     {venue.features.map((feature, i) => (
-                      <span key={i} className="text-xs bg-white/10 rounded-full px-2 py-0.5">{feature}</span>
+                      <span key={i} className="text-xs bg-white/10 rounded-full px-2 py-0.5 text-white">{feature}</span>
                     ))}
                   </div>
                 </motion.div>
@@ -927,7 +974,7 @@ export default function WeddingDemo() {
                     transition={{ delay: 1.6 + (idx * 0.15) }}
                   >
                     <div className="w-2 h-2 rounded-full bg-accent mr-2"></div>
-                    <div className="w-24 sm:w-28 flex-shrink-0 font-medium">{comm.type}</div>
+                    <div className="w-24 sm:w-28 flex-shrink0 font-medium">{comm.type}</div>
                     <div className="flex-1 mx-2 h-[2px] bg-gradient-to-r from-accent/50 to-transparent"></div>
                     <div className="text-xs text-text-secondary">{comm.sent}</div>
                     <div className="ml-2 text-xs">
@@ -953,13 +1000,16 @@ export default function WeddingDemo() {
         }
         
         // Get agent messages or provide defaults
-        const agentMessages: AgentMessage[] = currentStep.content?.communicationLog || currentStep.content?.agentConversation || [
-          { agent: "VenueAgent", message: "All venue details confirmed for October 15." },
-          { agent: "CateringAgent", message: "Menu selections and dietary restrictions processed." },
-          { agent: "GuestAgent", message: "Final guest count: 78 confirmed attendees." },
-          { agent: "DecorAgent", message: "Floral arrangements and table settings finalized." },
-          { agent: "BudgetAgent", message: "Currently $650 under total budget." }
-        ];
+        const agentMessages: AgentMessage[] =
+          (Array.isArray(currentStep.content?.agentConversation) && currentStep.content.agentConversation.every((m: any) => m.agent && m.message))
+            ? currentStep.content.agentConversation
+            : [
+                { agent: "VenueAgent", message: "All venue details confirmed for October 15." },
+                { agent: "CateringAgent", message: "Menu selections and dietary restrictions processed." },
+                { agent: "GuestAgent", message: "Final guest count: 78 confirmed attendees." },
+                { agent: "DecorAgent", message: "Floral arrangements and table settings finalized." },
+                { agent: "BudgetAgent", message: "Currently $650 under total budget." }
+              ];
         
         return (
           <div className="h-full flex flex-col justify-center">
@@ -1174,7 +1224,7 @@ export default function WeddingDemo() {
         </motion.div>
 
         <div className="flex flex-col items-center">
-          {/* Demo Steps Navigation - Now with improved mobile layout */}
+          {/* Step Navigation Bar */}
           <div className="glass-panel p-3 sm:p-4 reveal-on-scroll w-full max-w-4xl mb-4">
             <h3 className="text-xl font-semibold mb-3 text-center">Wedding Planning Demo</h3>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
@@ -1220,7 +1270,7 @@ export default function WeddingDemo() {
             </motion.button>
           </div>
 
-          {/* Demo Visualization */}
+          {/* Demo Visualization - glassmorphic browser-like frame */}
           <div className="w-full max-w-5xl">
             <motion.div 
               className="glass-panel aspect-video rounded-xl overflow-hidden relative reveal-on-scroll"
@@ -1236,26 +1286,26 @@ export default function WeddingDemo() {
                   <div className="w-3 h-3 rounded-full bg-green-500"></div>
                 </div>
                 <div className="mx-auto glass-panel px-4 py-1 text-sm rounded-full">
-                  agent.aia.browser/wedding-planner
+                  {/* Removed: agent.aia.browser/wedding-planner */}
                 </div>
               </div>
-              
-              {/* Demo Content */}
+              {/* Demo Content - always contained and scrollable if needed */}
               <div className="bg-gradient-to-br from-primary to-secondary h-full flex items-center justify-center px-6 pt-10 pb-4">
-                <AnimatePresence mode="wait">
-                  <motion.div 
-                    key={activeStep}
-                    className="w-full h-full"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {renderDemoContent()}
-                  </motion.div>
-                </AnimatePresence>
+                <div className="w-full h-full max-h-full overflow-y-auto flex flex-col">
+                  <AnimatePresence mode="wait">
+                    <motion.div 
+                      key={activeStep}
+                      className="w-full h-full"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {renderDemoContent()}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
               </div>
-              
               {/* Progress indicator */}
               <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
                 <motion.div 
