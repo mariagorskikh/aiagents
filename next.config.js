@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  output: 'export',
+  // output: 'export', // Commented out to enable API routes for waitlist
   images: {
     unoptimized: true,
   },

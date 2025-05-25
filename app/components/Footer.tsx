@@ -6,21 +6,15 @@ export default function Footer() {
   const footerSections = [
     {
       title: "Product",
-      links: ["Features", "Roadmap", "Beta Access", "Pricing"]
-    },
-    {
-      title: "Resources",
-      links: ["Documentation", "API", "Agent Directory", "Community"]
+      links: ["Features", "Demo"]
     },
     {
       title: "Company",
-      links: ["About", "Blog", "Careers", "Contact"]
+      links: ["About", "Contact"]
     }
   ];
   
   const socialLinks = [
-    { name: "X", icon: "X" },
-    { name: "LinkedIn", icon: "L" },
     { name: "GitHub", icon: "G" }
   ];
   
@@ -49,7 +43,7 @@ export default function Footer() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <motion.div
               variants={container}
               initial="hidden"
@@ -90,7 +84,7 @@ export default function Footer() {
                       variants={item}
                     >
                       <motion.a 
-                        href="#" 
+                        href={`#${link.toLowerCase()}`} 
                         className="hover:text-white transition-colors"
                         whileHover={{ x: 2, color: "#FFFFFF" }}
                       >
@@ -112,18 +106,6 @@ export default function Footer() {
         >
           <div>
             © {new Date().getFullYear()} AIA Browser. All rights reserved.
-          </div>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            {["Privacy Policy", "Terms of Service", "Cookie Policy"].map((item, i) => (
-              <motion.a 
-                key={i}
-                href="#" 
-                className="hover:text-white transition-colors"
-                whileHover={{ color: "#FFFFFF" }}
-              >
-                {item}
-              </motion.a>
-            ))}
           </div>
         </motion.div>
       </div>

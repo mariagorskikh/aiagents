@@ -836,9 +836,7 @@ export default function Demo() {
                   <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                   <div className="w-3 h-3 rounded-full bg-green-500"></div>
                 </div>
-                <div className="mx-auto glass-panel px-4 py-1 text-sm rounded-full">
-                  {/* Removed: agent.aia.browser/travel-assistant */}
-                </div>
+                <div className="mx-auto glass-panel px-4 py-1 text-sm rounded-full min-h-[1.5em]">&nbsp;</div>
               </div>
               
               {/* Demo Content */}

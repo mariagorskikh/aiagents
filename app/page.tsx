@@ -5,7 +5,6 @@ import Demo from './components/Demo';
 import InsuranceDemo from './components/InsuranceDemo';
 import WeddingDemo from './components/WeddingDemo';
 import Vision from './components/Vision';
-import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 
 export default function Home() {
@@ -18,7 +17,13 @@ export default function Home() {
       <InsuranceDemo />
       <WeddingDemo />
       <Vision />
-      <Footer />
+      
+      {/* Simple Footer */}
+      <footer className="py-8 text-center text-text-secondary bg-primary">
+        <div className="max-w-7xl mx-auto px-4">
+          © 2025 AIA Interface
+        </div>
+      </footer>
     </main>
   );
 } 
